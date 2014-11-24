@@ -40,7 +40,7 @@ class DBQueries {
 		}
 
 
-
+/**
 		$query = "SELECT COUNT(*) as count, document_licenses.name as name, dokumente.protected as prot 
 			FROM `dokumente` LEFT JOIN document_licenses ON dokumente.protected = license_id 
 					   LEFT JOIN seminar_user su ON dokumente.user_id = su.user_id
@@ -52,8 +52,8 @@ class DBQueries {
 			$sql_inst
 			$sql_sem_classes		
 			GROUP BY dokumente.protected ORDER BY count DESC";
+**/	
 		
-		/**
 		$query = "SELECT COUNT(*) as count, document_licenses.name as name, dokumente.protected as prot 
 			FROM `dokumente` LEFT JOIN document_licenses ON dokumente.protected = license_id 
 					   LEFT JOIN seminar_user su ON dokumente.user_id = su.user_id
@@ -65,7 +65,7 @@ class DBQueries {
 			$sql_inst
 			$sql_sem_classes
 			GROUP BY dokumente.protected ORDER BY count DESC";
-		**/
+		
 
 
 		$statement = DBManager::get()->prepare($query);
