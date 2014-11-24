@@ -22,11 +22,51 @@ class DBQueries {
 		return $documents;
 	}
 
-	function getLicenseCount(){
+	function getLicenseCount($institutes, $perms, $sem_classes){
+
+		$sql_perms = "";
+		$sql_inst = "";
+		$sql_sem_classes = "";
+
+
+		if ($institutes[0] != "all"){
+			$sql_inst = "AND seminare.Institut_id IN ('" . implode("','", $institutes) . "')";
+		}
+		if ($perms[0] != "all"){
+			$sql_perms = "AND su.status IN ('" . implode("','", $perms) . "')";
+		}
+		if ($sem_classes[0] != "all"){
+			$sql_sem_classes = "AND sem_types.class IN ('" . implode("','", $sem_classes) . "')";
+		}
+
+
+
 		$query = "SELECT COUNT(*) as count, document_licenses.name as name, dokumente.protected as prot 
-			FROM `dokumente` LEFT JOIN document_licenses ON (dokumente.protected = license_id) 
-			WHERE dokumente.protected > 1 AND dokumente.mkdate>= '1412935200'
+			FROM `dokumente` LEFT JOIN document_licenses ON dokumente.protected = license_id 
+					   LEFT JOIN seminar_user su ON dokumente.user_id = su.user_id
+					   AND dokumente.seminar_id = su.seminar_id
+					   LEFT JOIN seminare ON seminare.Seminar_id = dokumente.seminar_id
+					   LEFT JOIN sem_types ON seminare.status = sem_types.id
+			WHERE dokumente.protected > 1
+			$sql_perms	
+			$sql_inst
+			$sql_sem_classes		
 			GROUP BY dokumente.protected ORDER BY count DESC";
+		
+		/**
+		$query = "SELECT COUNT(*) as count, document_licenses.name as name, dokumente.protected as prot 
+			FROM `dokumente` LEFT JOIN document_licenses ON dokumente.protected = license_id 
+					   LEFT JOIN seminar_user su ON dokumente.user_id = su.user_id
+					   AND dokumente.seminar_id = su.seminar_id
+					   LEFT JOIN seminare ON seminare.Seminar_id = dokumente.seminar_id
+					   LEFT JOIN sem_types ON seminare.status = sem_types.id			
+			WHERE dokumente.protected > 1 AND dokumente.mkdate>= '1412935200'
+			$sql_perms	
+			$sql_inst
+			$sql_sem_classes
+			GROUP BY dokumente.protected ORDER BY count DESC";
+		**/
+
 
 		$statement = DBManager::get()->prepare($query);
 		$statement->execute();
@@ -34,4 +74,30 @@ class DBQueries {
 		
 		return $list;
 	}
+
+	function getInstitutes(){
+
+		$query = "SELECT i.name AS name, i.Institut_id AS id
+			FROM Institute i";
+                            
+		$statement = DBManager::get()->prepare($query);
+		$statement->execute();
+		$institute = $statement->fetchAll(PDO::FETCH_ASSOC);
+		
+		return $institute;
+	}
+
+	function getSemClasses(){
+
+		$query = "SELECT name, id			
+			FROM sem_classes";
+                            
+		$statement = DBManager::get()->prepare($query);
+		$statement->execute();
+		$sem_classes = $statement->fetchAll(PDO::FETCH_ASSOC);
+		
+		return $sem_classes;
+	}
+
+
  }

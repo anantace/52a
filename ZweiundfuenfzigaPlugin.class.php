@@ -14,39 +14,16 @@ require 'bootstrap.php';
 
 class ZweiundfuenfzigaPlugin extends AbstractStudIPAdministrationPlugin {
 
+				
     public function __construct() {
-        parent::__construct();
+       parent::__construct();
 
-        
-	$navigation = new PluginNavigation();
-        $navigation->setDisplayname('52a Statistiken');
-        $this->setNavigation($navigation);
-        $top_navigation = new PluginNavigation();
-        $top_navigation->setDisplayname('52a Statistiken');
-        $this->setTopnavigation($top_navigation);
+      
+	$this->setupNavigation();
 
-
-/**
-	 $navigation = new Navigation(_('52a Statistiken'));
-        $navigation->setURL(PluginEngine::GetURL($this, array(), '/LicenseCount'));
-        $navigation->setImage(Assets::image_path('blank.gif'));
-        Navigation::addItem('/zweiundfuenfzigaplugin', $navigation);
-
-	
-	 $url = PluginEngine::getURL($this, array(), '/LicenseCount');
-        $index  = new Navigation(_("Übersicht"),$url );
-        Navigation::addItem('/zweiundfuenfzigaplugin/uebersicht', $index);
-
-
-	 $url = PluginEngine::getURL($this, array(), 'LicenseCount/');
-        $license_count  = new Navigation(_("Aktuelle Zählung der Lizenzen"),$url );
-        Navigation::addItem('/zweiundfuenfzigaplugin/uebersicht/LicenseCount', $license_count);
-**/
-	/**
-	 $url = PluginEngine::getURL($this, array(), '/pie');
-        $pie  = new Navigation(_("Versuch Pie"),$url );
-        Navigation::addItem('/zweiundfuenfzigaplugin/uebersicht/pie', $pie);
-	**/
+	PageLayout::addStylesheet($this->getPluginUrl() . '/css/style.css');
+	PageLayout::addScript($this->getPluginUrl() . '/highcharts/js/highcharts.js');
+	PageLayout::addScript($this->getPluginUrl() . '/highcharts/js/modules/exporting.js');
 
     }
 
@@ -77,4 +54,41 @@ class ZweiundfuenfzigaPlugin extends AbstractStudIPAdministrationPlugin {
             });
         }
     }
+
+    private function setupNavigation() {
+	  
+	$navigation = new PluginNavigation();
+        $navigation->setDisplayname('52a Statistiken');
+        $this->setNavigation($navigation);
+        $top_navigation = new PluginNavigation();
+        $top_navigation->setDisplayname('52a Statistiken');
+        $this->setTopnavigation($top_navigation);
+    }
+
+    function get_license_shortened($index){
+	$license_shortened = array(	
+				0 => "Frei von Rechten Dritter",
+				1 => "Nicht frei von Rechten Dritter",
+			       2 => "Ungeklärt",
+				4 => "Individuelle Lizenz liegt vor",
+				5 => "Campuslizenz, etc.",
+			       6 => "$52a: Text",
+			       7 => "Public Domain",
+				8 => "Schutzfirst abgelaufen",
+				9 => "CC",
+				10 => "Open Access",
+			       12 => "Eigene: Rechte vorbehalten",
+			       13 => "Eigene: CC",
+			       14 => "Eigene: CC",
+			       15 => "Eigene: Public Domain",
+				18 => "$52a: Abbildung",
+				19 => "$52a: Musikstück",
+				20 => "$52a: Kinofilm",
+				21 => "$52a: Notenedition",);
+
+	return $license_shortened[$index];
+
+    }
+
+
 }
