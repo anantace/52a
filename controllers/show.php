@@ -14,7 +14,6 @@ class ShowController extends StudipController {
     public function before_filter(&$action, &$args) {
 
         $this->set_layout($GLOBALS['template_factory']->open('layouts/base_without_infobox'));
-//      PageLayout::setTitle('');
 
     }
 
@@ -42,6 +41,40 @@ class ShowController extends StudipController {
 	$this->document_sum_known_licenses = $this->sum_entries_known_license($licenses, 'count');
 	$this->institutes = DBQueries::getInstitutes();
 	$this->seminar_classes = DBQueries::getSemClasses();
+
+    }
+
+    public function instCompare_action($inst){
+	
+	//sidebar
+	$all_institutes = DBQueries::getInstitutes();
+	$this->institutes = $all_institutes;
+	$this->seminar_classes = DBQueries::getSemClasses();
+
+	$instArray = explode(" ", $inst);
+
+	//for highchart index and to define order for series-data
+	$selected_institutes = array();				
+
+	//for SQL Query in case of empty Institutes-Selection
+	if ($inst == "" || $inst == "all" ){
+		$inst = "all";   					
+		$selected_institutes = $all_institutes;     		
+		$instArray = explode(" ", $inst);
+
+	} else $selected_institutes = DBQueries::getInstitutesByID($instArray);
+	
+
+	$licenses = DBQueries::getLicenseCountForInstitutes($instArray);
+	
+	//presort for highchart-series
+	$inst_results = array();
+	foreach($licenses as $li){
+		$inst_results[$li[inst]][$li[prot]] = $li[count];	
+	}
+
+	$this->compared_institutes = $selected_institutes;
+	$this->institute_results = $inst_results;
 
     }
 
@@ -94,30 +127,6 @@ class ShowController extends StudipController {
 	return DBQueries::getLicenseCount($inst, $perms, $semClasses);
     }
 
-    function get_license_shortened($index){
-	$license_shortened = array(	
-				0 => "Frei von Rechten Dritter",
-				1 => "Nicht frei von Rechten Dritter",
-			       2 => "Ungeklärt",
-				4 => "Individuelle Lizenz liegt vor",
-				5 => "Campuslizenz, etc.",
-			       6 => "$52a: Text",
-			       7 => "Public Domain",
-				8 => "Schutzfirst abgelaufen",
-				9 => "CC",
-				10 => "Open Access",
-			       12 => "Eigene: Rechte vorbehalten",
-			       13 => "Eigene: CC",
-			       14 => "Eigene: CC",
-			       15 => "Eigene: Public Domain",
-				18 => "$52a: Abbildung",
-				19 => "$52a: Musikstück",
-				20 => "$52a: Kinofilm",
-				21 => "$52a: Notenedition",);
-
-	return $license_shortened[$index];
-
-    }
- 	
+  
 
 }

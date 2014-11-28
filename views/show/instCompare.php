@@ -24,7 +24,7 @@
 			<? foreach ($institutes as $entry) { ?>
 			 	<input type="checkbox" class="institutes" value="<?= $entry['id'] ?>"> <?= $entry['name'] ?><br>
 			<? } ?>
-			<a tabindex="0" href="javascript:void(0);" onclick="compareInstitutes()" class="button">Auswahl vergleichen</a>
+			<a tabindex="0" href="javascript:void(0);" onclick="reloadData()" class="button">Auswahl vergleichen</a>
 
 		</div><br><br>
 
@@ -73,55 +73,12 @@
 
     </div>
 	
-    <div id="charts">
-	<div id="container_anteil_gesamt" style="min-width: 410px; height: 400px; max-width: 1200px; margin: 0 auto"></div>
-	<div id="container_anteil_bekannt" style="min-width: 410px; height: 400px; max-width: 1200px; margin: 0 auto"></div>
-	<div id="container_vergleich" style="min-width: 410px; height: 400px; max-width: 1200px; margin: 0 auto"></div>
+    <div id="charts_alone">
+	<div id="container_vergleich" style="min-width: 410px; height: 450px; max-width: 1800px; margin: 0 auto"></div>
 
     </div>
 
-    <div id="tables"">
-	
-    	<? if (count($licenses)) { ?>
-   	<table class="default collapsable">
-		<tr>
-			<th>Anzahl</th>
-    			<th>Lizenz</th>    
-			<th>ID</th>
-			<th>Anteil ges.</th>
-			<th>Anteil geklärter Lizenzen</th>
-		</tr>   
-     
-	<? foreach ($licenses as $entry) { ?>
-		<tr>
-			<td> <?= $entry['count'] ?> </td>
-			<td> <?= $plugin->get_license_shortened($entry['prot']) ?> </td>
-			<td> <?= $entry['prot'] ?> </td>
-			<td> <?= round($entry['count']/$document_sum * 100, 2) ?>% </td>
-			<? if($entry['prot'] != '2'){ ?>
-		     		<td> <?= round($entry['count']/($document_sum_known_licenses) * 100, 2) ?>% </td>
-			<? } else ?>
-		   		<td></td>
-		
-		</tr>	
-
-	<? } ?>
-
-	<tr>
-		<td> <?= $document_sum ?> </td>
-		<td> Gesamt </td>
-		<td> <?= $document_sum_known_licenses ?></td>
-		<td>  </td>
-		<td>  </td>
-
-
-	</tr>	
-
-    	</table>
-	<? } ?>
-
-    	</div>
-
+    
 
 			
 
@@ -161,67 +118,8 @@ function reloadData() {
     
 	}
 
-function compareInstitutes() { 
-
-    		var arr_inst='';
-    		$('.institutes:checked').each(function() {
-             		arr_inst+=$(this).val()+" "
-    		}); 
-        				
-		if (arr_inst == ""){
-			arr_inst = "all";	
-		}
-		
-			
-		alert(arr_inst);
-		window.location = "<?= $controller->url_for('/show/instCompare/')?>" + arr_inst;
-
-    
-	}
-
-
 
 $(function () {
-
-
-    $('#container_anteil_gesamt').highcharts({
-        chart: {
-            plotBackgroundColor: null,
-            plotBorderWidth: 1,//null,
-            plotShadow: false
-        },
-        title: {
-            text: 'Anteil der Lizenzen insgesamt (eingestellte Dokumente seit 10.10.2014)'
-        },
-        tooltip: {
-            pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
-        },
-        plotOptions: {
-            pie: {
-                allowPointSelect: true,
-                cursor: 'pointer',
-                dataLabels: {
-                    enabled: true,
-                    format: '<b>{point.name}</b>: {point.percentage:.1f} %',
-                    style: {
-                        color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
-                    }
-                }
-            }
-        },
-	series: [{
-            type: 'pie',
-            name: 'Anteil gesamt',
-            data: [
-                <? 
-		  foreach($licenses as $i){
-                                echo "['".$plugin->get_license_shortened($i[prot])."', ". round($i[count]/$document_sum * 100, 2)."],";
-		/**.$plugin->get_license_shortened(**/
-                         }
-                ?>         
-            ]
-        }]
-    });
 
 
     $('#container_anteil_bekannt').highcharts({
@@ -270,17 +168,26 @@ $(function () {
         },
 
         title: {
-            text: 'Vergleich: Lizenzen nach Rechtestufe'
+            text: 'Vergleich: Lizenzen nach Einrichtungen'
         },
 
         xAxis: {
-            categories: ['Lingen', 'Meppen', 'Papenburg', 'ELAN']
+            categories: 
+		<?
+			echo "[";
+			foreach ($compared_institutes as $ci){
+				echo "'" . $ci[name] . "',";
+			}
+
+			echo "]"
+              ?>   
+
         },
 
         yAxis: {
             min: 0,
             title: {
-                text: 'Total fruit consumption'
+                text: 'Gesamtzahl hochgeladener Dokumente'
             },
             stackLabels: {
                 enabled: true,
@@ -292,9 +199,9 @@ $(function () {
         },
         legend: {
             align: 'right',
-            x: -70,
-            verticalAlign: 'top',
-            y: 20,
+            x: 0,
+            verticalAlign: 'bottom',
+            y: 40,
             floating: true,
             backgroundColor: (Highcharts.theme && Highcharts.theme.background2) || 'white',
             borderColor: '#CCC',
@@ -311,32 +218,27 @@ $(function () {
         plotOptions: {
             column: {
                 stacking: 'normal',
-                dataLabels: {
-                    enabled: true,
-                    color: (Highcharts.theme && Highcharts.theme.dataLabelsColor) || 'white',
-                    style: {
-                        textShadow: '0 0 3px black, 0 0 3px black'
-                    }
-                }
-            }
+              }
         },
-        series: [{
-            name: 'John',
-            data: [5, 3, 4, 7, 2],
-            
-        }, {
-            name: 'Joe',
-            data: [3, 4, 4, 2, 5],
-            
-        }, {
-            name: 'Jane',
-            data: [2, 5, 6, 2, 1],
-            
-        }, {
-            name: 'Janet',
-            data: [3, 0, 4, 4, 3],
-            
-        }]
+        series: [
+
+	 <? 
+		$prot = array_keys($plugin->get_licenses());
+
+		for($i=0; $i < count($prot); $i++){
+
+			echo "{ name: '". $prot[$i] . "', data: [";
+			foreach ($compared_institutes as $ci){
+				if ($institute_results[$ci[name]][$prot[$i]]){
+					echo $institute_results[$ci[name]][$prot[$i]] . ",";
+				} else echo "0,";
+			}
+			echo "], },";
+		}
+		
+
+	?>
+           ]
     });
  
 	 

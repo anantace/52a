@@ -90,5 +90,27 @@ class ZweiundfuenfzigaPlugin extends AbstractStudIPAdministrationPlugin {
 
     }
 
+     function get_licenses(){
+	$licenses = array(	
+				0 => "Frei von Rechten Dritter",
+				1 => "Nicht frei von Rechten Dritter",
+			       2 => "Ungeklärt",
+				4 => "Individuelle Lizenz liegt vor",
+				5 => "Campuslizenz, etc.",
+			       6 => "$52a: Text",
+			       7 => "Public Domain",
+				8 => "Schutzfirst abgelaufen",
+				9 => "CC",
+				10 => "Open Access",
+			       12 => "Eigene: Rechte vorbehalten",
+			       13 => "Eigene: CC",
+			       14 => "Eigene: CC",
+			       15 => "Eigene: Public Domain",
+				18 => "$52a: Abbildung",
+				19 => "$52a: Musikstück",
+				20 => "$52a: Kinofilm",
+				21 => "$52a: Notenedition",);
+	return $licenses;
+     }
 
 }
