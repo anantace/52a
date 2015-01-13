@@ -1,0 +1,46 @@
+	
+
+	Rechtestufe
+
+		<div id="perms" >	
+			<input type="checkbox" class="perms" value="admin" <?= $controller->selected('admin', $permsArray) ?> > admin<br>
+			<input type="checkbox" class="perms" value="dozent" <?= $controller->selected('dozent', $permsArray) ?> > dozent<br>
+			<input type="checkbox" class="perms" value="tutor" <?= $controller->selected('tutor', $permsArray) ?> > tutor<br>
+			<input type="checkbox" class="perms" value="autor" <?= $controller->selected('autor', $permsArray) ?> > autor<br>			
+		<a tabindex="0" href="javascript:void(0);" onclick="comparePerms()" class="button">Rechtestufen vergleichen</a>
+
+	</div><br><br>
+
+
+
+	<? if (count($seminar_classes)) { ?>
+		Veranstaltungsart
+
+		<div id="seminar_classes" >	
+			<? foreach ($seminar_classes as $entry) { ?>
+			 	<input type="checkbox" class="seminar_classes" value="<?= $entry['id'] ?>" <?= $controller->selected($entry['id'], $semClassArray) ?> > <?= $entry['name'] ?><br>
+
+			<? } ?>
+		<a tabindex="0" href="javascript:void(0);" onclick="compareSemClasses()" class="button">Veranstaltungsarten vergleichen</a>		
+
+		</div><br><br>
+
+
+	<? } ?>
+
+
+	<? if (count($institutes)) { ?>
+		Heimateinrichtungen
+
+		<div id="institutes" >
+			<? foreach ($institutes as $entry) { ?>
+			 	<input type="checkbox" class="institutes" value="<?= $entry['id'] ?>" <?= $controller->selected($entry['id'], $instArray) ?> > <?= $entry['name'] ?><br>
+				
+			<? } ?>
+
+		<a tabindex="0" href="javascript:void(0);" onclick="compareInstitutes()" class="button">Einrichtungen vergleichen</a>
+			
+		</div><br><br>
+
+
+	<? } ?>

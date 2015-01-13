@@ -47,24 +47,16 @@ class DBQueries {
 					   AND dokumente.seminar_id = su.seminar_id
 					   LEFT JOIN seminare ON seminare.Seminar_id = dokumente.seminar_id
 					   LEFT JOIN sem_types ON seminare.status = sem_types.id
-			WHERE dokumente.protected > 1
+
+			WHERE dokumente.protected > 1 AND dokumente.mkdate>= '1412935200'
+
 			$sql_perms	
 			$sql_inst
 			$sql_sem_classes		
 			GROUP BY dokumente.protected ORDER BY count DESC";
 		
-		/**
-		$query = "SELECT COUNT(*) as count, document_licenses.name as name, dokumente.protected as prot 
-			FROM `dokumente` LEFT JOIN document_licenses ON dokumente.protected = license_id 
-					   LEFT JOIN seminar_user su ON dokumente.user_id = su.user_id
-					   AND dokumente.seminar_id = su.seminar_id
-					   LEFT JOIN seminare ON seminare.Seminar_id = dokumente.seminar_id
-					   LEFT JOIN sem_types ON seminare.status = sem_types.id			
+		/**		
 			WHERE dokumente.protected > 1 AND dokumente.mkdate>= '1412935200'
-			$sql_perms	
-			$sql_inst
-			$sql_sem_classes
-			GROUP BY dokumente.protected ORDER BY count DESC";
 		**/
 
 
@@ -99,13 +91,21 @@ class DBQueries {
 		return $sem_classes;
 	}
 
-	function getLicenseCountForInstitutes($institutes){
+	function getLicenseCountForInstitutes($institutes, $perms, $sem_classes){
 
+		$sql_perms = "";
 		$sql_inst = "";
+		$sql_sem_classes = "";
 
 
 		if ($institutes[0] != "all"){
 			$sql_inst = "AND seminare.Institut_id IN ('" . implode("','", $institutes) . "')";
+		}
+		if ($perms[0] != "all"){
+			$sql_perms = "AND su.status IN ('" . implode("','", $perms) . "')";
+		}
+		if ($sem_classes[0] != "all"){
+			$sql_sem_classes = "AND sem_types.class IN ('" . implode("','", $sem_classes) . "')";
 		}
 
 
@@ -113,18 +113,19 @@ class DBQueries {
 			FROM `dokumente` LEFT JOIN document_licenses ON dokumente.protected = license_id 
 					   LEFT JOIN seminare ON seminare.Seminar_id = dokumente.seminar_id
 					   LEFT JOIN Institute ON seminare.Institut_id = Institute.Institut_id
-			WHERE dokumente.protected > 0	
-			$sql_inst		
+					   LEFT JOIN seminar_user su ON dokumente.user_id = su.user_id
+					   AND dokumente.seminar_id = su.seminar_id
+					   LEFT JOIN sem_types ON seminare.status = sem_types.id
+					   
+			WHERE dokumente.protected > 1 AND dokumente.mkdate>= '1412935200'
+
+		       $sql_perms
+			$sql_inst
+			$sql_sem_classes		
 			GROUP BY dokumente.protected, Institute.Name ORDER BY prot DESC, inst_id DESC";		
 
 		/**
-		$query = "SELECT COUNT(*) as count, document_licenses.name as name, dokumente.protected as prot, seminare.Institut_id as inst 
-			FROM `dokumente` LEFT JOIN document_licenses ON dokumente.protected = license_id 
-					   LEFT JOIN seminare ON seminare.Seminar_id = dokumente.seminar_id
-						
 			WHERE dokumente.protected > 1 AND dokumente.mkdate>= '1412935200'	
-			$sql_inst		
-			GROUP BY dokumente.protected ORDER BY count DESC";
 		**/
 
 
@@ -133,6 +134,440 @@ class DBQueries {
 		$list = $statement->fetchAll(PDO::FETCH_ASSOC);
 		
 		return $list;
+	}
+
+	function getLicenseCountForPerms($institutes, $perms, $sem_classes){
+
+		$sql_perms = "";
+		$sql_inst = "";
+		$sql_sem_classes = "";
+
+
+		if ($institutes[0] != "all"){
+			$sql_inst = "AND seminare.Institut_id IN ('" . implode("','", $institutes) . "')";
+		}
+		if ($perms[0] != "all"){
+			$sql_perms = "AND su.status IN ('" . implode("','", $perms) . "')";
+		}
+		if ($sem_classes[0] != "all"){
+			$sql_sem_classes = "AND sem_types.class IN ('" . implode("','", $sem_classes) . "')";
+		}
+
+
+		$query = "SELECT COUNT(*) as count, document_licenses.name as name, dokumente.protected as prot, su.status
+			FROM `dokumente` LEFT JOIN document_licenses ON dokumente.protected = license_id 
+					   LEFT JOIN seminar_user su ON dokumente.user_id = su.user_id
+					   AND dokumente.seminar_id = su.seminar_id
+					   LEFT JOIN seminare ON seminare.Seminar_id = dokumente.seminar_id
+					   LEFT JOIN Institute ON seminare.Institut_id = Institute.Institut_id
+					   LEFT JOIN sem_types ON seminare.status = sem_types.id
+
+
+			WHERE dokumente.protected > 1 AND dokumente.mkdate>= '1412935200'
+		
+			$sql_perms	
+			$sql_inst
+			$sql_sem_classes	
+			GROUP BY dokumente.protected, su.status ORDER BY su.status ASC, count DESC";		
+
+		/**	
+			WHERE dokumente.protected > 1 AND dokumente.mkdate>= '1412935200'	
+		**/
+
+
+		$statement = DBManager::get()->prepare($query);
+		$statement->execute();
+		$list = $statement->fetchAll(PDO::FETCH_ASSOC);
+		
+		return $list;
+	}
+
+	function getLicenseCountForSemClasses($institutes, $perms, $sem_classes){
+
+		$sql_perms = "";
+		$sql_inst = "";
+		$sql_sem_classes = "";
+
+
+		if ($institutes[0] != "all"){
+			$sql_inst = "AND seminare.Institut_id IN ('" . implode("','", $institutes) . "')";
+		}
+		if ($perms[0] != "all"){
+			$sql_perms = "AND su.status IN ('" . implode("','", $perms) . "')";
+		}
+		if ($sem_classes[0] != "all"){
+			$sql_sem_classes = "AND sem_types.class IN ('" . implode("','", $sem_classes) . "')";
+		}
+
+
+		$query = "SELECT COUNT(*) as count, document_licenses.name as name, dokumente.protected as prot, sem_classes.id as id
+			FROM `dokumente` LEFT JOIN document_licenses ON dokumente.protected = license_id 
+					   LEFT JOIN seminare ON seminare.Seminar_id = dokumente.seminar_id
+					   LEFT JOIN Institute ON seminare.Institut_id = Institute.Institut_id
+					   LEFT JOIN seminar_user su ON dokumente.user_id = su.user_id
+					   AND dokumente.seminar_id = su.seminar_id
+					   LEFT JOIN sem_types ON seminare.status = sem_types.id
+					   LEFT JOIN sem_classes ON sem_classes.id = sem_types.class
+					   
+			WHERE dokumente.protected > 1 AND dokumente.mkdate>= '1412935200'
+
+		       $sql_perms
+			$sql_inst
+			$sql_sem_classes		
+			GROUP BY dokumente.protected, sem_classes.id ORDER BY prot DESC, id DESC";		
+
+		/**
+			WHERE dokumente.protected > 1 AND dokumente.mkdate>= '1412935200'	
+		**/
+
+
+		$statement = DBManager::get()->prepare($query);
+		$statement->execute();
+		$list = $statement->fetchAll(PDO::FETCH_ASSOC);
+		
+		return $list;
+	}
+
+
+	function getDailyUploads($institutes, $perms, $sem_classes){
+
+		$sql_perms = "";
+		$sql_inst = "";
+		$sql_sem_classes = "";
+
+
+		if ($institutes[0] != "all"){
+			$sql_inst = "AND seminare.Institut_id IN ('" . implode("','", $institutes) . "')";
+		}
+		if ($perms[0] != "all"){
+			$sql_perms = "AND su.status IN ('" . implode("','", $perms) . "')";
+		}
+		if ($sem_classes[0] != "all"){
+			$sql_sem_classes = "AND sem_types.class IN ('" . implode("','", $sem_classes) . "')";
+		}
+			
+
+		$query = "SELECT COUNT(*) as count, document_licenses.name as name, dokumente.protected as prot, FROM_UNIXTIME(dokumente.mkdate, '%y/%m') AS month
+			FROM `dokumente` LEFT JOIN document_licenses ON dokumente.protected = license_id 
+					   LEFT JOIN seminar_user su ON dokumente.user_id = su.user_id
+					   AND dokumente.seminar_id = su.seminar_id
+					   LEFT JOIN seminare ON seminare.Seminar_id = dokumente.seminar_id
+					   LEFT JOIN sem_types ON seminare.status = sem_types.id
+
+			WHERE dokumente.protected > 1 AND dokumente.mkdate>= '1412935200'
+	
+			$sql_perms	
+			$sql_inst
+			$sql_sem_classes		
+			GROUP BY MONTH(FROM_UNIXTIME(dokumente.mkdate)), YEAR(FROM_UNIXTIME(dokumente.mkdate)), dokumente.protected
+			ORDER BY month ASC";
+
+		/**				
+			WHERE dokumente.protected > 1 AND dokumente.mkdate>= '1412935200'	
+		**/
+
+
+		$statement = DBManager::get()->prepare($query);
+		$statement->execute();
+		$list = $statement->fetchAll(PDO::FETCH_ASSOC);
+		
+		return $list;
+
+	}
+
+	function getWeeklyUploads($institutes, $perms, $sem_classes){
+
+		$sql_perms = "";
+		$sql_inst = "";
+		$sql_sem_classes = "";
+
+
+		if ($institutes[0] != "all"){
+			$sql_inst = "AND seminare.Institut_id IN ('" . implode("','", $institutes) . "')";
+		}
+		if ($perms[0] != "all"){
+			$sql_perms = "AND su.status IN ('" . implode("','", $perms) . "')";
+		}
+		if ($sem_classes[0] != "all"){
+			$sql_sem_classes = "AND sem_types.class IN ('" . implode("','", $sem_classes) . "')";
+		}
+			
+
+		$query = "SELECT COUNT(*) as count, document_licenses.name as name, dokumente.protected as prot, CONCAT(WEEK(FROM_UNIXTIME(dokumente.mkdate), 3), '/', FROM_UNIXTIME(dokumente.mkdate, '%y')) AS week
+			FROM `dokumente` LEFT JOIN document_licenses ON dokumente.protected = license_id 
+					   LEFT JOIN seminar_user su ON dokumente.user_id = su.user_id
+					   AND dokumente.seminar_id = su.seminar_id
+					   LEFT JOIN seminare ON seminare.Seminar_id = dokumente.seminar_id
+					   LEFT JOIN sem_types ON seminare.status = sem_types.id
+
+			WHERE dokumente.protected > 1 AND dokumente.mkdate>= '1412935200'
+	
+			$sql_perms	
+			$sql_inst
+			$sql_sem_classes		
+			GROUP BY CONCAT(WEEK(FROM_UNIXTIME(dokumente.mkdate), 3), '/', FROM_UNIXTIME(dokumente.mkdate, '%y')), dokumente.protected
+			ORDER BY FROM_UNIXTIME(dokumente.mkdate, '%y'), WEEK(FROM_UNIXTIME(dokumente.mkdate), 3) ASC";
+
+		/**
+			WHERE dokumente.protected > 1 AND dokumente.mkdate>= '1412935200'	
+		**/
+
+
+		$statement = DBManager::get()->prepare($query);
+		$statement->execute();
+		$list = $statement->fetchAll(PDO::FETCH_ASSOC);
+		
+		return $list;
+
+	}
+
+	function getSemUploads($institutes, $perms, $sem_classes){
+
+		$sql_perms = "";
+		$sql_inst = "";
+		$sql_sem_classes = "";
+
+
+		if ($institutes[0] != "all"){
+			$sql_inst = "AND seminare.Institut_id IN ('" . implode("','", $institutes) . "')";
+		}
+		if ($perms[0] != "all"){
+			$sql_perms = "AND su.status IN ('" . implode("','", $perms) . "')";
+		}
+		if ($sem_classes[0] != "all"){
+			$sql_sem_classes = "AND sem_types.class IN ('" . implode("','", $sem_classes) . "')";
+		}
+			
+
+		$query = "SELECT COUNT(*) as count, sd.semester_id as sem_id, sd.name as sem
+			FROM `dokumente` LEFT JOIN document_licenses ON dokumente.protected = license_id 
+					   LEFT JOIN seminar_user su ON dokumente.user_id = su.user_id
+					   AND dokumente.seminar_id = su.seminar_id
+					   LEFT JOIN semester_data sd ON (FROM_UNIXTIME(dokumente.mkdate) BETWEEN FROM_UNIXTIME(sd.beginn) AND FROM_UNIXTIME(sd.ende))				   
+					   LEFT JOIN seminare ON seminare.Seminar_id = dokumente.seminar_id
+					   LEFT JOIN sem_types ON seminare.status = sem_types.id
+	
+			WHERE dokumente.protected > -1
+			$sql_perms	
+			$sql_inst
+			$sql_sem_classes		
+			GROUP BY sem_id
+			ORDER BY sd.beginn DESC LIMIT 0, 20";
+
+		/**		
+			SELECT document_licenses.name as name, dokumente.protected as prot, sd.semester_id as sem_id, sd.name as sem, FROM_UNIXTIME(dokumente.mkdate) as date
+			FROM `dokumente` LEFT JOIN document_licenses ON dokumente.protected = license_id 
+					   LEFT JOIN seminar_user su ON dokumente.user_id = su.user_id
+					   AND dokumente.seminar_id = su.seminar_id
+					   LEFT JOIN semester_data sd ON (dokumente.mkdate BETWEEN sd.beginn AND sd.ende)
+                                           LEFT JOIN seminare ON seminare.Seminar_id = dokumente.seminar_id
+					   LEFT JOIN sem_types ON seminare.status = sem_types.id
+
+			WHERE dokumente.protected > 2
+			AND sd.name NOT IN ('WS 2014/15')
+			
+			ORDER BY sd.beginn DESC
+		
+			WHERE dokumente.protected > 1 AND dokumente.mkdate>= '1412935200'	
+		**/
+
+
+		$statement = DBManager::get()->prepare($query);
+		$statement->execute();
+		$list = $statement->fetchAll(PDO::FETCH_ASSOC);
+		
+		return $list;
+
+	}
+
+
+	function getMonths($institutes, $perms, $sem_classes){
+		$sql_perms = "";
+		$sql_inst = "";
+		$sql_sem_classes = "";
+
+
+		if ($institutes[0] != "all"){
+			$sql_inst = "AND seminare.Institut_id IN ('" . implode("','", $institutes) . "')";
+		}
+		if ($perms[0] != "all"){
+			$sql_perms = "AND su.status IN ('" . implode("','", $perms) . "')";
+		}
+		if ($sem_classes[0] != "all"){
+			$sql_sem_classes = "AND sem_types.class IN ('" . implode("','", $sem_classes) . "')";
+		}
+			
+
+		$query = "SELECT FROM_UNIXTIME(dokumente.mkdate, '%y/%m') AS id, FROM_UNIXTIME(dokumente.mkdate, '%M') AS name
+			FROM `dokumente` LEFT JOIN document_licenses ON dokumente.protected = license_id 
+					   LEFT JOIN seminar_user su ON dokumente.user_id = su.user_id
+					   AND dokumente.seminar_id = su.seminar_id
+					   LEFT JOIN seminare ON seminare.Seminar_id = dokumente.seminar_id
+					   LEFT JOIN sem_types ON seminare.status = sem_types.id
+
+
+			WHERE dokumente.protected > 1 AND dokumente.mkdate>= '1412935200'
+	
+			$sql_perms	
+			$sql_inst
+			$sql_sem_classes		
+			GROUP BY MONTH(FROM_UNIXTIME(dokumente.mkdate)), YEAR(FROM_UNIXTIME(dokumente.mkdate)) 
+			ORDER BY id ASC";
+
+		/**	
+			WHERE dokumente.protected > 1 AND dokumente.mkdate>= '1412935200' 	
+		**/
+
+
+		$statement = DBManager::get()->prepare($query);
+		$statement->execute();
+		$list = $statement->fetchAll(PDO::FETCH_ASSOC);
+		
+		return $list;
+
+	}
+
+	function getWeeks($institutes, $perms, $sem_classes){
+		$sql_perms = "";
+		$sql_inst = "";
+		$sql_sem_classes = "";
+
+
+		if ($institutes[0] != "all"){
+			$sql_inst = "AND seminare.Institut_id IN ('" . implode("','", $institutes) . "')";
+		}
+		if ($perms[0] != "all"){
+			$sql_perms = "AND su.status IN ('" . implode("','", $perms) . "')";
+		}
+		if ($sem_classes[0] != "all"){
+			$sql_sem_classes = "AND sem_types.class IN ('" . implode("','", $sem_classes) . "')";
+		}
+			
+
+		$query = "SELECT CONCAT(WEEK(FROM_UNIXTIME(dokumente.mkdate), 3), '/', FROM_UNIXTIME(dokumente.mkdate, '%y')) AS id, WEEK(FROM_UNIXTIME(dokumente.mkdate), 3) AS name
+			FROM `dokumente` LEFT JOIN document_licenses ON dokumente.protected = license_id 
+					   LEFT JOIN seminar_user su ON dokumente.user_id = su.user_id
+					   AND dokumente.seminar_id = su.seminar_id
+					   LEFT JOIN seminare ON seminare.Seminar_id = dokumente.seminar_id
+					   LEFT JOIN sem_types ON seminare.status = sem_types.id
+
+
+			WHERE dokumente.protected > 1 AND dokumente.mkdate>= '1412935200'
+			
+			$sql_perms	
+			$sql_inst
+			$sql_sem_classes		
+			GROUP BY CONCAT(WEEK(FROM_UNIXTIME(dokumente.mkdate), 3), '/', FROM_UNIXTIME(dokumente.mkdate, '%y')) 
+			ORDER BY FROM_UNIXTIME(dokumente.mkdate, '%y'), WEEK(FROM_UNIXTIME(dokumente.mkdate), 3) ASC";
+
+		/**
+			WHERE dokumente.protected > 1 AND dokumente.mkdate>= '1412935200'	
+		**/
+
+
+		$statement = DBManager::get()->prepare($query);
+		$statement->execute();
+		$list = $statement->fetchAll(PDO::FETCH_ASSOC);
+		
+		return $list;
+
+	}
+
+
+
+	function getReportsCount($institutes, $perms, $sem_classes){
+
+		$sql_perms = "";
+		$sql_inst = "";
+		$sql_sem_classes = "";
+
+
+		if ($institutes[0] != "all"){
+			$sql_inst = "AND seminare.Institut_id IN ('" . implode("','", $institutes) . "')";
+		}
+		if ($perms[0] != "all"){
+			$sql_perms = "AND su.status IN ('" . implode("','", $perms) . "')";
+		}
+		if ($sem_classes[0] != "all"){
+			$sql_sem_classes = "AND sem_types.class IN ('" . implode("','", $sem_classes) . "')";
+		}
+
+
+
+		$query = "SELECT COUNT(*) as count, dr.status as report_status, FROM_UNIXTIME(dokumente.mkdate, '%y/%m') as month, TIMESTAMPDIFF(MINUTE,dokumente.mkdate,dr.mkdate)as 'Minuten zwischen Upload und Meldung'
+			FROM `dokumente` LEFT JOIN seminar_user su ON dokumente.user_id = su.user_id
+					   AND dokumente.seminar_id = su.seminar_id
+					   LEFT JOIN document_reports dr ON dokumente.user_id = dr.user_id
+					   AND dokumente.seminar_id = dr.seminar_id AND dokumente.dokument_id = dr.document_id
+					   LEFT JOIN seminare ON seminare.Seminar_id = dokumente.seminar_id
+					   LEFT JOIN sem_types ON seminare.status = sem_types.id
+
+			WHERE dokumente.protected = 6 AND dokumente.mkdate>= '1412935200'
+			$sql_perms	
+			$sql_inst
+			$sql_sem_classes			
+			GROUP BY month, dr.status ORDER BY month ASC, count DESC";
+		
+
+		$statement = DBManager::get()->prepare($query);
+		$statement->execute();
+		$list = $statement->fetchAll(PDO::FETCH_ASSOC);
+		
+		return $list;
+	}
+
+
+	function getReportsCountWeek($institutes, $perms, $sem_classes){
+
+		$sql_perms = "";
+		$sql_inst = "";
+		$sql_sem_classes = "";
+
+
+		if ($institutes[0] != "all"){
+			$sql_inst = "AND seminare.Institut_id IN ('" . implode("','", $institutes) . "')";
+		}
+		if ($perms[0] != "all"){
+			$sql_perms = "AND su.status IN ('" . implode("','", $perms) . "')";
+		}
+		if ($sem_classes[0] != "all"){
+			$sql_sem_classes = "AND sem_types.class IN ('" . implode("','", $sem_classes) . "')";
+		}
+
+
+
+		$query = "SELECT COUNT(*) as count, dr.status as report_status, CONCAT(WEEK(FROM_UNIXTIME(dokumente.mkdate), 3), '/', FROM_UNIXTIME(dokumente.mkdate, '%y')) AS week, TIMESTAMPDIFF(MINUTE,dokumente.mkdate,dr.mkdate)as 'Minuten zwischen Upload und Meldung'
+			FROM `dokumente` LEFT JOIN seminar_user su ON dokumente.user_id = su.user_id
+					   AND dokumente.seminar_id = su.seminar_id
+					   LEFT JOIN document_reports dr ON dokumente.user_id = dr.user_id
+					   AND dokumente.seminar_id = dr.seminar_id AND dokumente.dokument_id = dr.document_id
+					   LEFT JOIN seminare ON seminare.Seminar_id = dokumente.seminar_id
+					   LEFT JOIN sem_types ON seminare.status = sem_types.id
+
+			WHERE dokumente.protected = 6 AND dokumente.mkdate>= '1412935200'
+			$sql_perms	
+			$sql_inst
+			$sql_sem_classes			
+			GROUP BY CONCAT(WEEK(FROM_UNIXTIME(dokumente.mkdate), 3), '/', FROM_UNIXTIME(dokumente.mkdate, '%y')), dr.status 
+			ORDER BY FROM_UNIXTIME(dokumente.mkdate, '%y'), WEEK(FROM_UNIXTIME(dokumente.mkdate), 3) ASC, count DESC";
+
+		$statement = DBManager::get()->prepare($query);
+		$statement->execute();
+		$list = $statement->fetchAll(PDO::FETCH_ASSOC);
+		
+		return $list;
+	}
+
+	function getSemData(){
+		$query = "SELECT * FROM `semester_data`
+			ORDER BY beginn DESC LIMIT 0, 20";
+
+		$statement = DBManager::get()->prepare($query);
+		$statement->execute();
+		$semData = $statement->fetchAll(PDO::FETCH_ASSOC);
+		
+		return $semData;
+
 	}
 
 	function getInstitutesByID($ids){
@@ -147,5 +582,19 @@ class DBQueries {
 		return $institute;
 
 	}
+
+	function getSemClassesByID($ids){
+
+		$query = "SELECT sc.name, sc.id			
+			FROM sem_classes sc WHERE sc.id IN ('" . implode("','", $ids) . "')";
+                            
+		$statement = DBManager::get()->prepare($query);
+		$statement->execute();
+		$semClasses = $statement->fetchAll(PDO::FETCH_ASSOC);
+		
+		return $semClasses;
+
+	}
+
 
  }

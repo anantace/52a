@@ -14,7 +14,9 @@ require 'bootstrap.php';
 
 class ZweiundfuenfzigaPlugin extends AbstractStudIPAdministrationPlugin {
 
-				
+    	
+
+			
     public function __construct() {
        parent::__construct();
 
@@ -72,7 +74,7 @@ class ZweiundfuenfzigaPlugin extends AbstractStudIPAdministrationPlugin {
 			       2 => "Ungeklärt",
 				4 => "Individuelle Lizenz liegt vor",
 				5 => "Campuslizenz, etc.",
-			       6 => "$52a: Text",
+			       6 => "§52a: Text",
 			       7 => "Public Domain",
 				8 => "Schutzfirst abgelaufen",
 				9 => "CC",
@@ -81,10 +83,10 @@ class ZweiundfuenfzigaPlugin extends AbstractStudIPAdministrationPlugin {
 			       13 => "Eigene: CC",
 			       14 => "Eigene: CC",
 			       15 => "Eigene: Public Domain",
-				18 => "$52a: Abbildung",
-				19 => "$52a: Musikstück",
-				20 => "$52a: Kinofilm",
-				21 => "$52a: Notenedition",);
+				18 => "§52a: Abbildung",
+				19 => "§52a: Musikstück",
+				20 => "§52a: Kinofilm",
+				21 => "§52a: Notenedition",);
 
 	return $license_shortened[$index];
 
@@ -97,7 +99,7 @@ class ZweiundfuenfzigaPlugin extends AbstractStudIPAdministrationPlugin {
 			       2 => "Ungeklärt",
 				4 => "Individuelle Lizenz liegt vor",
 				5 => "Campuslizenz, etc.",
-			       6 => "$52a: Text",
+			       6 => "§52a: Text",
 			       7 => "Public Domain",
 				8 => "Schutzfirst abgelaufen",
 				9 => "CC",
@@ -106,11 +108,60 @@ class ZweiundfuenfzigaPlugin extends AbstractStudIPAdministrationPlugin {
 			       13 => "Eigene: CC",
 			       14 => "Eigene: CC",
 			       15 => "Eigene: Public Domain",
-				18 => "$52a: Abbildung",
-				19 => "$52a: Musikstück",
-				20 => "$52a: Kinofilm",
-				21 => "$52a: Notenedition",);
+				18 => "§52a: Abbildung",
+				19 => "§52a: Musikstück",
+				20 => "§52a: Kinofilm",
+				21 => "§52a: Notenedition",);
 	return $licenses;
      }
+
+     function get_license_group($prot, $index){
+	
+	 	$groups = array(	
+				0 => array(0, "Frei von Rechten Dritter"), 
+				1 => array(1, "Nicht frei von Rechten Dritter"),
+			       2 => array(2, "Ungeklärt"),
+				4 => array(4, "Lizenz liegt vor"),		//"Individuelle Lizenz liegt vor",
+				5 => array(4, "Lizenz liegt vor"),		//"Campuslizenz, etc.",
+			       6 => array(6, "§52a: Text"),
+			       7 => array(7, "Frei nutzbar"),			//"Public Domain",
+				8 => array(7, "Frei nutzbar"),			//"Schutzfirst abgelaufen",
+				9 => array(7, "Frei nutzbar"),			//"CC",
+				10 => array(7, "Frei nutzbar"),			//"Open Access",
+			       12 => array(12, "Eigene Werke"),					//"Eigene: Rechte vorbehalten",
+			       13 => array(12, "Eigene Werke"),					//"Eigene: CC",
+			       14 => array(12, "Eigene Werke"),					//"Eigene: CC",
+			       15 => array(12, "Eigene Werke"),					//"Eigene: Public Domain",
+				18 => array(18, "§52a - kein Text"),               	//"$52a: Abbildung",
+				19 => array(18, "§52a - kein Text"),  			//"$52a: Musikstück",
+				20 => array(18, "§52a - kein Text"),  			//"$52a: Kinofilm",
+				21 => array(18, "§52a - kein Text"),);			//"$52a: Notenedition",);
+		
+		return $groups[$prot][$index];
+
+	}
+
+	function get_license_group_ids(){
+	
+	 	$groups = array(	
+				0 => 0, 
+				1 => 1,
+			       2 => 2,
+				3 => 4,
+				4 => 6,		
+				5 => 7,		
+			       6 => 12,
+			       7 => 18);			
+		
+		return $groups;
+
+	}
+
+
+	function get_perms(){
+
+		$ZweiundfuenfzigaPlugin_perms = array('autor', 'tutor', 'dozent');
+		return $ZweiundfuenfzigaPlugin_perms;
+	}
 
 }
