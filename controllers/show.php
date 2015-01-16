@@ -222,8 +222,14 @@ class ShowController extends StudipController {
 	$perms_results_grouped = array();
 
 	foreach($result as $rs){
-		$perms_results[$rs[status]][$rs[prot]] = $rs[count];	
-		$perms_results_grouped[$rs[status]][$this->get_license_group($rs[prot], 0)] += $rs[count];
+		if ($rs[status]!= NULL){
+			$perms_results[$rs[status]][$rs[prot]] = $rs[count];	
+			$perms_results_grouped[$rs[status]][$this->get_license_group($rs[prot], 0)] += $rs[count];
+		} else {
+			$perms_results[$rs[perms]][$rs[prot]] = $rs[count];	
+			$perms_results_grouped[$rs[perms]][$this->get_license_group($rs[prot], 0)] += $rs[count];
+
+		}
 	}
 	
 
@@ -367,6 +373,66 @@ class ShowController extends StudipController {
 	$this->seminar_classes = DBQueries::getSemClasses();
 
     }
+
+     public function semComparePerms_action($inst, $perms, $sem_classes){
+
+	
+	if ($inst == ""){
+		$inst = "all";
+	}
+	if ($perms == ""){
+		$perms = "all";
+	}
+	if ($sem_classes == ""){
+		$sem_classes = "all";
+	}
+
+	$instArray = explode(" ", $inst);
+	$permsArray = explode(" ", $perms);
+	$semClassArray = explode(" ", $sem_classes);
+	
+	//for highchart index and to define order for series-data
+	$selected_perms = array();				
+
+	//for SQL Query in case of empty Perms-Selection
+	if ($perms == "" || $perms == "all" ){
+		$perms = "all";   					
+		$selected_perms = array('autor', 'dozent', 'tutor', 'admin');     		
+		$permsArray = explode(" ", chop($perms));
+
+	} else $selected_perms = $permsArray; 
+
+	$uploads = DBQueries::getSemUploadForPerms($instArray, $permsArray, $semClassArray);
+
+	//presort for highchart-series
+	$uploads_sem = array();
+
+	foreach($uploads as $ul){
+		if($ul[status]!= NULL){
+			$uploads_sem[$ul[status]][$ul[sem]] = $ul[count];	
+		} else {
+			$uploads_sem[$ul[perms]][$ul[sem]] = $ul[count];
+		}
+	}
+
+
+
+
+	$this->instArray = $instArray;
+	$this->permsArray = $permsArray;
+	$this->semClassArray = $semClassArray;
+
+	$this->selected_perms = $permsArray;
+	$this->perms = array('autor', 'tutor', 'dozent', 'admin');
+
+	$this->semester = DBQueries::getSemData();
+	$this->compared_perms = $selected_perms;
+	$this->uploads_sem = $uploads_sem;
+	$this->institutes = DBQueries::getInstitutes();
+	$this->seminar_classes = DBQueries::getSemClasses();
+
+    }
+
 
 	
     public function randomDocuments_action() {

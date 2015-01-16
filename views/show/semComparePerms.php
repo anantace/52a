@@ -9,7 +9,7 @@
 	</div>
 
 
-	<? include $this->plugin->getPluginPath() . '/includes/sidebar.html';  ?>
+	<? include $this->plugin->getPluginPath() . '/includes/sidebar-blank.html';  ?>
 
 </div>
 
@@ -31,45 +31,6 @@
 </div>
 
 <script>
-
-function comparePerms(){
-		var arr_inst='';
-    		$('.institutes:checked').each(function() {
-             		arr_inst+=$(this).val()+" "
-    		}); 
-        				
-    		var arr_perms='';
-    		$('.perms:checked').each(function() {
-        		arr_perms+=$(this).val()+" "
-    		}); 
-
-    		var arr_sem_classes='';
-    		$('.seminar_classes:checked').each(function() {
-        		arr_sem_classes+=$(this).val()+" "
-    		}); 
-
-		if (arr_inst == ""){
-			arr_inst = "all";	
-		}
-		if (arr_perms == ""){
-			arr_perms = "all";	
-		}
-		if (arr_sem_classes == ""){
-			arr_sem_classes = "all";	
-		}
-
-		window.location = "<?= $controller->url_for('/show/semComparePerms/')?>" + arr_inst + "/" + arr_perms + "/" + arr_sem_classes;
-
-
-}
-
-function compareSemClasses(){
-	alert("Noch nicht eingebaut");
-}
-function compareInstitutes(){
-	alert("Noch nicht eingebaut");
-
-}
 
 function reloadData() { 
 
@@ -98,7 +59,7 @@ function reloadData() {
 			arr_sem_classes = "all";	
 		}
 
-		window.location = "<?= $controller->url_for('/show/semCompare/')?>" + arr_inst + "/" + arr_perms + "/" + arr_sem_classes;
+		window.location = "<?= $controller->url_for('/show/semComparePerms/')?>" + arr_inst + "/" + arr_perms + "/" + arr_sem_classes;
 
     
 	}
@@ -111,6 +72,7 @@ $(function () {
     $('#container').highcharts({
 	 chart: {
 	     zoomType: 'x'
+
 	 },
         title: {
             text: 'Uploads pro Semester'
@@ -125,8 +87,8 @@ $(function () {
             categories: 
 		<?
 			echo "[";
-			foreach ($uploads_sem as $us){
-				echo "'" . $us['sem'] . "',";
+			foreach ($semester as $s){
+				echo "'" . $s[name] . "',";
 			}
 
 			echo "]"
@@ -146,14 +108,17 @@ $(function () {
         },
         series: [
 		<?
+		    foreach($compared_perms as $cp){
 
 			echo "{ type: 'column',";
-			echo " name: 'Uploads pro Semester', data: [";
-			foreach ($uploads_sem as $us){
-				echo $us['count'].",";
+			echo " name: '" . $cp . "', data: [";
+			foreach ($semester as $s){
+			    if ($uploads_sem[$cp][$s[name]]){
+					echo $uploads_sem[$cp][$s[name]].",";
+			    } else echo "0,";
 			}
 			echo "], },";
-		
+		    }
 		?>
 
 
