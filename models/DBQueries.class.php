@@ -41,7 +41,7 @@ class DBQueries {
 			} else if (count($perms)==1){		//user ist Systemadmin
 				$sql_perms = "AND au.perms IN ('admin')";
 			} else 					//user ist Dozent, Tutor oder Teilnehmer der Veranstaltung oder Systemadmin
-				$sql_perms = "AND ((au.perms IN ('admin')) OR (su.status IN ('" . implode("','", $perms) . "')))";
+				$sql_perms = "AND ((au.perms IN ('admin', 'root')) OR (su.status IN ('" . implode("','", $perms) . "')))";
 			
 		}
 		if ($sem_classes[0] != "all"){
@@ -58,7 +58,7 @@ class DBQueries {
 					   LEFT JOIN seminare ON seminare.Seminar_id = dokumente.seminar_id
 					   LEFT JOIN sem_types ON seminare.status = sem_types.id
 
-			WHERE dokumente.mkdate>= '1412935200' 
+			WHERE dokumente.protected > 1 AND dokumente.mkdate>= '1412935200' AND sem_types.class > 0
 
 			$sql_perms	
 			$sql_inst
@@ -80,15 +80,28 @@ class DBQueries {
 
 	function getInstitutes(){
 
-		$query = "SELECT i.name AS name, i.Institut_id AS id
+		$query = "SELECT i.name AS name, i.Institut_id AS id, i.fakultaets_id
 			FROM Institute i";
                             
 		$statement = DBManager::get()->prepare($query);
 		$statement->execute();
 		$institute = $statement->fetchAll(PDO::FETCH_ASSOC);
-		
+	
 		return $institute;
 	}
+
+	function getFaculties(){
+
+		$query = "SELECT i.name AS name, i.Institut_id AS id, i.fakultaets_id
+			FROM Institute i WHERE i.Institut_id = i.fakultaets_id";
+                            
+		$statement = DBManager::get()->prepare($query);
+		$statement->execute();
+		$institute = $statement->fetchAll(PDO::FETCH_ASSOC);
+	
+		return $institute;
+	}
+
 
 
 	function getSemClasses(){
@@ -120,7 +133,7 @@ class DBQueries {
 			} else if (count($perms)==1){		//user ist Systemadmin
 				$sql_perms = "AND au.perms IN ('admin')";
 			} else 					//user ist Dozent, Tutor oder Teilnehmer der Veranstaltung oder Systemadmin
-				$sql_perms = "AND ((au.perms IN ('admin')) OR (su.status IN ('" . implode("','", $perms) . "')))";
+				$sql_perms = "AND ((au.perms IN ('admin', 'root')) OR (su.status IN ('" . implode("','", $perms) . "')))";
 			
 		}
 
@@ -138,7 +151,8 @@ class DBQueries {
 					   LEFT JOIN auth_user_md5 au ON dokumente.user_id = au.user_id
 					   LEFT JOIN sem_types ON seminare.status = sem_types.id
 					   
-			WHERE dokumente.mkdate>= '1412935200'
+			WHERE dokumente.protected > 1 AND dokumente.mkdate>= '1412935200' AND sem_types.class > 0
+	
 		       $sql_perms
 			$sql_inst
 			$sql_sem_classes		
@@ -155,6 +169,60 @@ class DBQueries {
 		
 		return $list;
 	}
+
+	function getLicenseCountForFaculties($institutes, $perms, $sem_classes){
+
+		$sql_perms = "";
+		$sql_inst = "";
+		$sql_sem_classes = "";
+
+
+		if ($institutes[0] != "all"){
+			$sql_inst = "AND seminare.Institut_id IN ('" . implode("','", $institutes) . "')";
+		}
+		if ($perms[0] != "all"){
+			if (!in_array('admin', $perms)){		//user ist Dozent, Tutor oder Teilnehmer der Veranstaltung
+				$sql_perms = "AND su.status IN ('" . implode("','", $perms) . "')";
+			} else if (count($perms)==1){		//user ist Systemadmin
+				$sql_perms = "AND au.perms IN ('admin')";
+			} else 					//user ist Dozent, Tutor oder Teilnehmer der Veranstaltung oder Systemadmin
+				$sql_perms = "AND ((au.perms IN ('admin', 'root')) OR (su.status IN ('" . implode("','", $perms) . "')))";
+			
+		}
+
+		if ($sem_classes[0] != "all"){
+			$sql_sem_classes = "AND sem_types.class IN ('" . implode("','", $sem_classes) . "')";
+		}
+
+
+		$query = "SELECT COUNT(*) as count, document_licenses.name as name, dokumente.protected as prot, Institute.Name as inst, Institute.fakultaets_id as fak_id
+			FROM `dokumente` LEFT JOIN document_licenses ON dokumente.protected = license_id 
+					   LEFT JOIN seminare ON seminare.Seminar_id = dokumente.seminar_id
+					   LEFT JOIN Institute ON seminare.Institut_id = Institute.Institut_id
+					   LEFT JOIN seminar_user su ON dokumente.user_id = su.user_id
+					   AND dokumente.seminar_id = su.seminar_id
+					   LEFT JOIN auth_user_md5 au ON dokumente.user_id = au.user_id
+					   LEFT JOIN sem_types ON seminare.status = sem_types.id
+					   
+			WHERE dokumente.protected > 1 AND dokumente.mkdate>= '1412935200' AND sem_types.class > 0 
+	
+		       $sql_perms
+			$sql_inst
+			$sql_sem_classes		
+			GROUP BY Institute.fakultaets_id, dokumente.protected ORDER BY prot DESC";		
+
+		/**
+			WHERE dokumente.protected > 1 AND dokumente.mkdate>= '1412935200'	
+		**/
+
+
+		$statement = DBManager::get()->prepare($query);
+		$statement->execute();
+		$list = $statement->fetchAll(PDO::FETCH_ASSOC);
+		
+		return $list;
+	}
+
 
 
 	function getLicenseCountForPerms($institutes, $perms, $sem_classes){
@@ -173,7 +241,7 @@ class DBQueries {
 			} else if (count($perms)==1){		//user ist Systemadmin
 				$sql_perms = "AND au.perms IN ('admin')";
 			} else 					//user ist Dozent, Tutor oder Teilnehmer der Veranstaltung oder Systemadmin
-				$sql_perms = "AND ((au.perms IN ('admin')) OR (su.status IN ('" . implode("','", $perms) . "')))";
+				$sql_perms = "AND ((au.perms IN ('admin', 'root')) OR (su.status IN ('" . implode("','", $perms) . "')))";
 			
 		}
 
@@ -192,7 +260,8 @@ class DBQueries {
 					   LEFT JOIN sem_types ON seminare.status = sem_types.id
 
 
-			WHERE dokumente.mkdate>= '1412935200'
+			WHERE dokumente.protected > 1 AND dokumente.mkdate>= '1412935200' AND sem_types.class > 0
+
 		
 			$sql_perms	
 			$sql_inst
@@ -228,7 +297,7 @@ class DBQueries {
 			} else if (count($perms)==1){		//user ist Systemadmin
 				$sql_perms = "AND au.perms IN ('admin')";
 			} else 					//user ist Dozent, Tutor oder Teilnehmer der Veranstaltung oder Systemadmin
-				$sql_perms = "AND ((au.perms IN ('admin')) OR (su.status IN ('" . implode("','", $perms) . "')))";
+				$sql_perms = "AND ((au.perms IN ('admin', 'root')) OR (su.status IN ('" . implode("','", $perms) . "')))";
 			
 		}
 		if ($sem_classes[0] != "all"){
@@ -246,7 +315,8 @@ class DBQueries {
 					   LEFT JOIN sem_types ON seminare.status = sem_types.id
 					   LEFT JOIN sem_classes ON sem_classes.id = sem_types.class
 					   
-			WHERE dokumente.mkdate>= '1412935200'
+			WHERE dokumente.protected > 1 AND dokumente.mkdate>= '1412935200' AND sem_types.class > 0
+	
 		       $sql_perms
 			$sql_inst
 			$sql_sem_classes		
@@ -281,7 +351,7 @@ class DBQueries {
 			} else if (count($perms)==1){		//user ist Systemadmin
 				$sql_perms = "AND au.perms IN ('admin')";
 			} else 					//user ist Dozent, Tutor oder Teilnehmer der Veranstaltung oder Systemadmin
-				$sql_perms = "AND ((au.perms IN ('admin')) OR (su.status IN ('" . implode("','", $perms) . "')))";
+				$sql_perms = "AND ((au.perms IN ('admin', 'root')) OR (su.status IN ('" . implode("','", $perms) . "')))";
 			
 		}
 		if ($sem_classes[0] != "all"){
@@ -297,8 +367,8 @@ class DBQueries {
 					   LEFT JOIN seminare ON seminare.Seminar_id = dokumente.seminar_id
 					   LEFT JOIN sem_types ON seminare.status = sem_types.id
 
-			WHERE dokumente.mkdate>= '1412935200'
-	
+			WHERE dokumente.protected > 1 AND dokumente.mkdate>= '1412935200' AND sem_types.class > 0
+
 			$sql_perms	
 			$sql_inst
 			$sql_sem_classes		
@@ -335,7 +405,7 @@ class DBQueries {
 			} else if (count($perms)==1){		//user ist Systemadmin
 				$sql_perms = "AND au.perms IN ('admin')";
 			} else 					//user ist Dozent, Tutor oder Teilnehmer der Veranstaltung oder Systemadmin
-				$sql_perms = "AND ((au.perms IN ('admin')) OR (su.status IN ('" . implode("','", $perms) . "')))";
+				$sql_perms = "AND ((au.perms IN ('admin', 'root')) OR (su.status IN ('" . implode("','", $perms) . "')))";
 			
 		}
 		if ($sem_classes[0] != "all"){
@@ -351,8 +421,8 @@ class DBQueries {
 					   LEFT JOIN seminare ON seminare.Seminar_id = dokumente.seminar_id
 					   LEFT JOIN sem_types ON seminare.status = sem_types.id
 
-			WHERE dokumente.mkdate>= '1412935200'
-
+			WHERE dokumente.protected > 1 AND dokumente.mkdate>= '1412935200' AND sem_types.class > 0
+	
 			$sql_perms	
 			$sql_inst
 			$sql_sem_classes		
@@ -389,7 +459,7 @@ class DBQueries {
 			} else if (count($perms)==1){		//user ist Systemadmin
 				$sql_perms = "AND au.perms IN ('admin')";
 			} else 					//user ist Dozent, Tutor oder Teilnehmer der Veranstaltung oder Systemadmin
-				$sql_perms = "AND ((au.perms IN ('admin')) OR (su.status IN ('" . implode("','", $perms) . "')))";
+				$sql_perms = "AND ((au.perms IN ('admin', 'root')) OR (su.status IN ('" . implode("','", $perms) . "')))";
 			
 		}
 		if ($sem_classes[0] != "all"){
@@ -406,7 +476,8 @@ class DBQueries {
 					   LEFT JOIN seminare ON seminare.Seminar_id = dokumente.seminar_id
 					   LEFT JOIN sem_types ON seminare.status = sem_types.id
 	
-			WHERE dokumente.protected > -1
+			WHERE dokumente.protected > -1 AND sem_types.class > 0
+
 			$sql_perms	
 			$sql_inst
 			$sql_sem_classes		
@@ -428,7 +499,6 @@ class DBQueries {
 			
 			ORDER BY sd.beginn DESC
 		
-			WHERE dokumente.protected > 1 AND dokumente.mkdate>= '1412935200'	
 		**/
 
 
@@ -457,7 +527,7 @@ class DBQueries {
 			} else if (count($perms)==1){		//user ist Systemadmin
 				$sql_perms = "AND au.perms IN ('admin')";
 			} else 					//user ist Dozent, Tutor oder Teilnehmer der Veranstaltung oder Systemadmin
-				$sql_perms = "AND ((au.perms IN ('admin')) OR (su.status IN ('" . implode("','", $perms) . "')))";
+				$sql_perms = "AND ((au.perms IN ('admin', 'root')) OR (su.status IN ('" . implode("','", $perms) . "')))";
 			
 		}
 		if ($sem_classes[0] != "all"){
@@ -474,16 +544,13 @@ class DBQueries {
 					   LEFT JOIN seminare ON seminare.Seminar_id = dokumente.seminar_id
 					   LEFT JOIN sem_types ON seminare.status = sem_types.id
 	
-			WHERE dokumente.protected > -1
+			WHERE dokumente.protected > -1 AND sem_types.class > 0
+
 			$sql_perms	
 			$sql_inst
 			$sql_sem_classes		
 			GROUP BY sem_id, su.status
-			ORDER BY sd.beginn DESC LIMIT 0, 20";		
-
-		/**	
-			WHERE dokumente.protected > 1 AND dokumente.mkdate>= '1412935200'	
-		**/
+			ORDER BY sd.beginn DESC LIMIT 0, 80";		
 
 
 		$statement = DBManager::get()->prepare($query);
@@ -510,7 +577,7 @@ class DBQueries {
 			} else if (count($perms)==1){		//user ist Systemadmin
 				$sql_perms = "AND au.perms IN ('admin')";
 			} else 					//user ist Dozent, Tutor oder Teilnehmer der Veranstaltung oder Systemadmin
-				$sql_perms = "AND ((au.perms IN ('admin')) OR (su.status IN ('" . implode("','", $perms) . "')))";
+				$sql_perms = "AND ((au.perms IN ('admin', 'root')) OR (su.status IN ('" . implode("','", $perms) . "')))";
 			
 		}
 		if ($sem_classes[0] != "all"){
@@ -527,8 +594,8 @@ class DBQueries {
 					   LEFT JOIN sem_types ON seminare.status = sem_types.id
 
 
-			WHERE dokumente.mkdate>= '1412935200'
-	
+			WHERE dokumente.protected > 1 AND dokumente.mkdate>= '1412935200' AND sem_types.class > 0
+
 			$sql_perms	
 			$sql_inst
 			$sql_sem_classes		
@@ -564,7 +631,7 @@ class DBQueries {
 			} else if (count($perms)==1){		//user ist Systemadmin
 				$sql_perms = "AND au.perms IN ('admin')";
 			} else 					//user ist Dozent, Tutor oder Teilnehmer der Veranstaltung oder Systemadmin
-				$sql_perms = "AND ((au.perms IN ('admin')) OR (su.status IN ('" . implode("','", $perms) . "')))";
+				$sql_perms = "AND ((au.perms IN ('admin', 'root')) OR (su.status IN ('" . implode("','", $perms) . "')))";
 			
 		}
 		if ($sem_classes[0] != "all"){
@@ -581,7 +648,7 @@ class DBQueries {
 					   LEFT JOIN sem_types ON seminare.status = sem_types.id
 
 
-			WHERE dokumente.mkdate>= '1412935200'
+			WHERE dokumente.protected > 1 AND dokumente.mkdate>= '1412935200' AND sem_types.class > 0
 			
 			$sql_perms	
 			$sql_inst
@@ -620,7 +687,7 @@ class DBQueries {
 			} else if (count($perms)==1){		//user ist Systemadmin
 				$sql_perms = "AND au.perms IN ('admin')";
 			} else 					//user ist Dozent, Tutor oder Teilnehmer der Veranstaltung oder Systemadmin
-				$sql_perms = "AND ((au.perms IN ('admin')) OR (su.status IN ('" . implode("','", $perms) . "')))";
+				$sql_perms = "AND ((au.perms IN ('admin', 'root')) OR (su.status IN ('" . implode("','", $perms) . "')))";
 			
 		}
 		if ($sem_classes[0] != "all"){
@@ -638,7 +705,7 @@ class DBQueries {
 					   LEFT JOIN seminare ON seminare.Seminar_id = dokumente.seminar_id
 					   LEFT JOIN sem_types ON seminare.status = sem_types.id
 
-			WHERE dokumente.protected = 6 AND dokumente.mkdate>= '1412935200'
+			WHERE dokumente.protected = 6 AND dokumente.mkdate>= '1412935200' AND sem_types.class > 0
 			$sql_perms	
 			$sql_inst
 			$sql_sem_classes			
@@ -669,7 +736,7 @@ class DBQueries {
 			} else if (count($perms)==1){		//user ist Systemadmin
 				$sql_perms = "AND au.perms IN ('admin')";
 			} else 					//user ist Dozent, Tutor oder Teilnehmer der Veranstaltung oder Systemadmin
-				$sql_perms = "AND ((au.perms IN ('admin')) OR (su.status IN ('" . implode("','", $perms) . "')))";
+				$sql_perms = "AND ((au.perms IN ('admin', 'root')) OR (su.status IN ('" . implode("','", $perms) . "')))";
 			
 		}
 		if ($sem_classes[0] != "all"){
@@ -685,7 +752,8 @@ class DBQueries {
 					   LEFT JOIN seminare ON seminare.Seminar_id = dokumente.seminar_id
 					   LEFT JOIN sem_types ON seminare.status = sem_types.id
 
-			WHERE dokumente.protected = 6 AND dokumente.mkdate>= '1412935200'
+			WHERE dokumente.protected = 6 AND dokumente.mkdate>= '1412935200' AND sem_types.class > 0
+
 			$sql_perms	
 			$sql_inst
 			$sql_sem_classes			
@@ -730,7 +798,7 @@ class DBQueries {
 			} else if (count($perms)==1){		//user ist Systemadmin
 				$sql_perms = "AND au.perms IN ('admin')";
 			} else 					//user ist Dozent, Tutor oder Teilnehmer der Veranstaltung oder Systemadmin
-				$sql_perms = "AND ((au.perms IN ('admin')) OR (su.status IN ('" . implode("','", $perms) . "')))";
+				$sql_perms = "AND ((au.perms IN ('admin', 'root')) OR (su.status IN ('" . implode("','", $perms) . "')))";
 			
 		}
 		if ($sem_classes[0] != "all"){
@@ -743,7 +811,8 @@ class DBQueries {
 			FROM `document_reports` 
 				LEFT JOIN dokumente ON dokumente.Dokument_id = document_reports.document_id 
 
-			WHERE dokumente.protected != 6 AND dokumente.mkdate>= '1412935200'
+			WHERE dokumente.protected != 6 AND dokumente.mkdate>= '1412935200' AND sem_types.class > 0
+
 			$sql_perms	
 			$sql_inst
 			$sql_sem_classes			
@@ -771,6 +840,20 @@ class DBQueries {
 		return $institute;
 
 	}
+
+	function getFacultiesByID($ids){
+
+		$query = "SELECT i.name AS name, i.Institut_id AS id
+			FROM Institute i WHERE i.Institut_id IN ('" . implode("','", $ids) . "') AND i.Institut_id = i.fakultaets_id";
+                            
+		$statement = DBManager::get()->prepare($query);
+		$statement->execute();
+		$institute = $statement->fetchAll(PDO::FETCH_ASSOC);
+		
+		return $institute;
+
+	}
+
 
 
 	function getSemClassesByID($ids){

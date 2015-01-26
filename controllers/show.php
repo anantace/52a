@@ -35,6 +35,17 @@ class ShowController extends StudipController {
 	$semClassArray = explode(" ", $sem_classes);
 
 	$licenses = $this->getLicenseCount($instArray, $permsArray, $semClassArray);
+
+	$institutes = DBQueries::getInstitutes();
+	$grouped_institutes = array();
+
+	foreach($institutes as $i){
+		if($i[id] == $i[fakultaets_id]){
+			$grouped_institutes[$i[fakultaets_id]]['name'] = $i[name];
+			$grouped_institutes[$i[fakultaets_id]]['id'] = $i[id];
+		} else $grouped_institutes[$i[fakultaets_id]]['institutes'][$i[id]] = array('inst_id' =>$i[id], 'inst_name' => $i[name]);
+	}
+
 	
 	$licenses_grouped = array();
 	$licenses_grouped = $this->group_result($licenses, "prot", "count");
@@ -48,7 +59,7 @@ class ShowController extends StudipController {
 	$this->licenses_grouped = $licenses_grouped;
 	$this->document_sum = $this->sum_entries($licenses, 'count');	
 	$this->document_sum_known_licenses = $this->sum_entries_known_license($licenses, 'count');
-	$this->institutes = DBQueries::getInstitutes();
+	$this->institutes = $grouped_institutes;
 	$this->seminar_classes = DBQueries::getSemClasses();
 
     }
@@ -73,8 +84,18 @@ class ShowController extends StudipController {
 
 	
 	//sidebar
-	$all_institutes = DBQueries::getInstitutes();
-	$this->institutes = $all_institutes;
+	$institutes = DBQueries::getInstitutes();
+	$grouped_institutes = array();
+
+	foreach($institutes as $i){
+		if($i[id] == $i[fakultaets_id]){
+			$grouped_institutes[$i[fakultaets_id]]['name'] = $i[name];
+			$grouped_institutes[$i[fakultaets_id]]['id'] = $i[id];
+		} else $grouped_institutes[$i[fakultaets_id]]['institutes'][$i[id]] = array('inst_id' =>$i[id], 'inst_name' => $i[name]);
+	}
+
+
+	$this->institutes = $grouped_institutes;
 	$this->seminar_classes = DBQueries::getSemClasses();
 
 
@@ -114,6 +135,77 @@ class ShowController extends StudipController {
 
     }
 
+
+
+    public function fakCompare_action($inst, $perms, $sem_classes){
+
+	if ($inst == ""){
+		$inst = "all";
+	}
+	if ($perms == ""){
+		$perms = "all";
+	}
+	if ($sem_classes == ""){
+		$sem_classes = "all";
+	}
+
+	$instArray = explode(" ", $inst);
+	$permsArray = explode(" ", $perms);
+	$semClassArray = explode(" ", $sem_classes);
+
+
+	//sidebar
+	$institutes = DBQueries::getFaculties();
+	$grouped_institutes = array();
+
+	foreach($institutes as $i){
+		if($i[id] == $i[fakultaets_id]){
+			$grouped_institutes[$i[fakultaets_id]]['name'] = $i[name];
+			$grouped_institutes[$i[fakultaets_id]]['id'] = $i[id];
+		} else $grouped_institutes[$i[fakultaets_id]]['institutes'][$i[id]] = array('inst_id' =>$i[id], 'inst_name' => $i[name]);
+	}
+	$this->institutes = $grouped_institutes;
+	$this->seminar_classes = DBQueries::getSemClasses();
+
+
+	//for highchart index and to define order for series-data
+	$selected_institutes = array();				
+
+	//for SQL Query in case of empty Faculty-Selection
+	if ($inst == "" || $inst == "all" ){
+		$inst = "all";   					
+		$selected_institutes = DBQueries::getFaculties();    		
+		$instArray = explode(" ", $inst);
+
+	} else $selected_institutes = DBQueries::getFacultiesByID($instArray);
+	
+
+	$licenses = DBQueries::getLicenseCountForFaculties($instArray, $permsArray, $semClassArray);
+	
+	//presort for highchart-series
+	$inst_results = array();
+	$inst_results_grouped = array();
+
+	foreach($licenses as $li){
+		$inst_results[$li[fak_id]][$li[prot]] = $li[count];
+		$inst_results_grouped[$li[fak_id]][$this->get_license_group($li[prot], 0)] += $li[count];	
+	}
+
+	$this->instArray = $instArray;
+	$this->permsArray = $permsArray;
+	$this->semClassArray = $semClassArray;
+
+	$this->selected_institutes_ids = $instArray;
+
+	$this->compared_institutes = $selected_institutes;
+	$this->institute_results = $inst_results;
+	$this->institute_results_grouped = $inst_results_grouped;
+
+
+    }
+
+
+
      public function semClassCompare_action($inst, $perms, $sem_classes){
 
 	if ($inst == ""){
@@ -133,7 +225,17 @@ class ShowController extends StudipController {
 	
 	//sidebar
 	$all_semClasses = DBQueries::getSemClasses();
-	$this->institutes = DBQueries::getInstitutes();
+	$institutes = DBQueries::getInstitutes();
+	$grouped_institutes = array();
+
+	foreach($institutes as $i){
+		if($i[id] == $i[fakultaets_id]){
+			$grouped_institutes[$i[fakultaets_id]]['name'] = $i[name];
+			$grouped_institutes[$i[fakultaets_id]]['id'] = $i[id];
+		} else $grouped_institutes[$i[fakultaets_id]]['institutes'][$i[id]] = array('inst_id' =>$i[id], 'inst_name' => $i[name]);
+	}
+
+	$this->institutes = $grouped_institutes;
 	$this->seminar_classes = $all_semClasses;
 
 
@@ -194,8 +296,16 @@ class ShowController extends StudipController {
 
 
 	//sidebar
-	$all_institutes = DBQueries::getInstitutes();
-	$this->institutes = $all_institutes;
+	$institutes = DBQueries::getInstitutes();
+	$grouped_institutes = array();
+
+	foreach($institutes as $i){
+		if($i[id] == $i[fakultaets_id]){
+			$grouped_institutes[$i[fakultaets_id]]['name'] = $i[name];
+			$grouped_institutes[$i[fakultaets_id]]['id'] = $i[id];
+		} else $grouped_institutes[$i[fakultaets_id]]['institutes'][$i[id]] = array('inst_id' =>$i[id], 'inst_name' => $i[name]);
+	}
+	$this->institutes = $grouped_institutes;
 	$this->seminar_classes = DBQueries::getSemClasses();
 
 
@@ -205,7 +315,7 @@ class ShowController extends StudipController {
 	//for SQL Query in case of empty Perms-Selection
 	if ($perms == "" || $perms == "all" ){
 		$perms = "all";   					
-		$selected_perms = array('autor', 'dozent', 'tutor', 'admin');     		
+		$selected_perms = array('autor', 'dozent', 'tutor', 'admin', 'root');     		
 		$permsArray = explode(" ", chop($perms));
 
 	} else $selected_perms = $permsArray;  //??
@@ -226,8 +336,10 @@ class ShowController extends StudipController {
 			$perms_results[$rs[status]][$rs[prot]] = $rs[count];	
 			$perms_results_grouped[$rs[status]][$this->get_license_group($rs[prot], 0)] += $rs[count];
 		} else {
-			$perms_results[$rs[perms]][$rs[prot]] = $rs[count];	
-			$perms_results_grouped[$rs[perms]][$this->get_license_group($rs[prot], 0)] += $rs[count];
+			if($rs[perms] == 'admin' || $rs[perms] == 'root'){
+				$perms_results[$rs[perms]][$rs[prot]] = $rs[count];	
+				$perms_results_grouped[$rs[perms]][$this->get_license_group($rs[prot], 0)] += $rs[count];
+			}
 
 		}
 	}
@@ -240,7 +352,7 @@ class ShowController extends StudipController {
 	
 	//$this->selected_institutes_ids = $permsArray;
 	$this->selected_perms = $permsArray;
-	$this->perms = array('autor', 'tutor', 'dozent', 'admin');
+	$this->perms = array('autor', 'tutor', 'dozent', 'admin', 'root');
 
 	$this->compared_perms = $selected_perms;
 	$this->perms_results = $perms_results;
@@ -315,6 +427,16 @@ class ShowController extends StudipController {
 		$reports_sorted_week[$rw[week]][$rw[report_status]] = $rw[count];	
 	}
 
+	$institutes = DBQueries::getInstitutes();
+	$grouped_institutes = array();
+
+	foreach($institutes as $i){
+		if($i[id] == $i[fakultaets_id]){
+			$grouped_institutes[$i[fakultaets_id]]['name'] = $i[name];
+			$grouped_institutes[$i[fakultaets_id]]['id'] = $i[id];
+		} else $grouped_institutes[$i[fakultaets_id]]['institutes'][$i[id]] = array('inst_id' =>$i[id], 'inst_name' => $i[name]);
+	}
+
 
 	$this->instArray = $instArray;
 	$this->permsArray = $permsArray;
@@ -331,7 +453,7 @@ class ShowController extends StudipController {
 	$this->uploads_week = $uploads_prot_week;
 	$this->uploads_grouped = $uploads_prot_grouped;
 	$this->uploads_grouped_week = $uploads_prot_grouped_week;
-	$this->institutes = DBQueries::getInstitutes();
+	$this->institutes = $grouped_institutes;
 	$this->seminar_classes = DBQueries::getSemClasses();
 
     }
@@ -363,13 +485,23 @@ class ShowController extends StudipController {
 		$uploads_sem[$ul[sem]]= $ul[count];
 	}
 
+	$institutes = DBQueries::getInstitutes();
+	$grouped_institutes = array();
+
+	foreach($institutes as $i){
+		if($i[id] == $i[fakultaets_id]){
+			$grouped_institutes[$i[fakultaets_id]]['name'] = $i[name];
+			$grouped_institutes[$i[fakultaets_id]]['id'] = $i[id];
+		} else $grouped_institutes[$i[fakultaets_id]]['institutes'][$i[id]] = array('inst_id' =>$i[id], 'inst_name' => $i[name]);
+	}
+
 
 	$this->instArray = $instArray;
 	$this->permsArray = $permsArray;
 	$this->semClassArray = $semClassArray;
 
-	$this->uploads_sem = $uploads;
-	$this->institutes = DBQueries::getInstitutes();
+	$this->uploads_sem = array_reverse($uploads, true);
+	$this->institutes = $grouped_institutes;
 	$this->seminar_classes = DBQueries::getSemClasses();
 
     }
@@ -397,7 +529,7 @@ class ShowController extends StudipController {
 	//for SQL Query in case of empty Perms-Selection
 	if ($perms == "" || $perms == "all" ){
 		$perms = "all";   					
-		$selected_perms = array('autor', 'dozent', 'tutor', 'admin');     		
+		$selected_perms = array('autor', 'dozent', 'tutor', 'admin', 'root');     		
 		$permsArray = explode(" ", chop($perms));
 
 	} else $selected_perms = $permsArray; 
@@ -411,11 +543,21 @@ class ShowController extends StudipController {
 		if($ul[status]!= NULL){
 			$uploads_sem[$ul[status]][$ul[sem]] = $ul[count];	
 		} else {
-			$uploads_sem[$ul[perms]][$ul[sem]] = $ul[count];
+			if($ul[perms] == 'admin' || $ul[perms] == 'root'){
+				$uploads_sem[$ul[perms]][$ul[sem]] = $ul[count];
+			}
 		}
 	}
 
+	$institutes = DBQueries::getInstitutes();
+	$grouped_institutes = array();
 
+	foreach($institutes as $i){
+		if($i[id] == $i[fakultaets_id]){
+			$grouped_institutes[$i[fakultaets_id]]['name'] = $i[name];
+			$grouped_institutes[$i[fakultaets_id]]['id'] = $i[id];
+		} else $grouped_institutes[$i[fakultaets_id]]['institutes'][$i[id]] = array('inst_id' =>$i[id], 'inst_name' => $i[name]);
+	}
 
 
 	$this->instArray = $instArray;
@@ -423,12 +565,12 @@ class ShowController extends StudipController {
 	$this->semClassArray = $semClassArray;
 
 	$this->selected_perms = $permsArray;
-	$this->perms = array('autor', 'tutor', 'dozent', 'admin');
+	$this->perms = array('autor', 'tutor', 'dozent', 'admin', 'root');
 
-	$this->semester = DBQueries::getSemData();
+	$this->semester = array_reverse(DBQueries::getSemData(), true);
 	$this->compared_perms = $selected_perms;
-	$this->uploads_sem = $uploads_sem;
-	$this->institutes = DBQueries::getInstitutes();
+	$this->uploads_sem = array_reverse($uploads_sem, true);
+	$this->institutes = $grouped_institutes;
 	$this->seminar_classes = DBQueries::getSemClasses();
 
     }

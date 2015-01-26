@@ -149,6 +149,42 @@ function compareInstitutes() {
     
 	}
 
+function compareFaks() { 
+
+    		var arr_inst='';
+    		$('.institutes:checked').each(function() {
+             		arr_inst+=$(this).val()+" "
+    		}); 
+        				
+    		var arr_perms='';
+    		$('.perms:checked').each(function() {
+        		arr_perms+=$(this).val()+" "
+    		}); 
+
+    		var arr_sem_classes='';
+    		$('.seminar_classes:checked').each(function() {
+        		arr_sem_classes+=$(this).val()+" "
+    		}); 
+
+		if (arr_inst == ""){
+			arr_inst = "all";	
+		}
+		if (arr_perms == ""){
+			arr_perms = "all";	
+		}
+		if (arr_sem_classes == ""){
+			arr_sem_classes = "all";	
+		}
+
+		window.location = "<?= $controller->url_for('/show/fakCompare/')?>" + arr_inst + "/" + arr_perms + "/" + arr_sem_classes;
+
+    
+
+    
+	}
+
+
+
 
 function comparePerms() { 
 
@@ -217,8 +253,42 @@ function compareSemClasses() {
     
 	}
 
+function hideinstOF(){
+	var instOfFak = document.getElementsByClassName("institutesOfFak");
+	for (var i = 0; i < instOfFak.length; i++) {
+   	 	instOfFak[i].style.display = 'none';
+	}
+}
+
 
 $(function () {
+
+    var instOfFak = document.getElementsByClassName("institutesOF");
+    for (var i = 0; i < instOfFak.length; i++) {
+   	 	instOfFak[i].onclick = function() {
+			var institutes = document.getElementsByClassName("institutesOfFak" + this.title);
+ 			for (var j = 0; j < institutes.length; j++) {
+				if(institutes[j].style.display == 'none'){
+					institutes[j].style.display = 'block';
+				} else institutes[j].style.display = 'none';
+			}
+		}
+	}
+
+
+    var fakultaeten = document.getElementsByClassName("institutes");
+    for (var i = 0; i < fakultaeten.length; i++) {
+   	 	fakultaeten[i].onchange = function() {
+			var institutes = document.getElementsByClassName("institutesOfFak" + this.value)[0].childNodes;
+				for (var j = 0; j < institutes.length; j++) {
+					
+					if(this.checked){
+						institutes[j].checked = true;
+					} else institutes[j].checked = false;		
+				}
+		}			
+	}
+
 
     var group = document.getElementById('group_licenses');
     group.onchange = function() {
@@ -248,7 +318,7 @@ $(function () {
             plotShadow: false
         },
         title: {
-            text: 'Anteil der Lizenzen insgesamt (eingestellte Dokumente seit 10.10.2014)'
+            text: 'Anteil der Lizenzen insgesamt (seit 10.10.2014)'
         },
         tooltip: {
             pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
@@ -288,7 +358,7 @@ $(function () {
             plotShadow: false
         },
         title: {
-            text: 'Anteil der geklärten Lizenzen (eingestellte Dokumente seit 10.10.2014)'
+            text: 'Anteil der geklärten Lizenzen (seit 10.10.2014)'
         },
         tooltip: {
             pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
@@ -329,7 +399,7 @@ $(function () {
             plotShadow: false
         },
         title: {
-            text: 'Anteil der Lizenzen insgesamt nach Lizenzgruppen(eingestellte Dokumente seit 10.10.2014)'
+            text: 'Anteil der Lizenzen insgesamt nach Lizenzgruppen (seit 10.10.2014)'
         },
         tooltip: {
             pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
@@ -368,7 +438,7 @@ $(function () {
             plotShadow: false
         },
         title: {
-            text: 'Anteil der geklärten Lizenzen nach Lizenzgruppen(eingestellte Dokumente seit 10.10.2014)'
+            text: 'Anteil der geklärten Lizenzen nach Lizenzgruppen (seit 10.10.2014)'
         },
         tooltip: {
             pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
@@ -403,6 +473,8 @@ $(function () {
 
     document.getElementById('container_anteil_gesamt_grouped').style.display = "none";
     document.getElementById('container_anteil_bekannt_grouped').style.display = "none";
+
+    
 
 
 });

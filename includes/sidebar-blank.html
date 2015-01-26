@@ -26,11 +26,21 @@
 		Heimateinrichtungen
 
 		<div id="institutes" >
-			<? foreach ($institutes as $entry) { ?>
-			 	<input type="checkbox" class="institutes" value="<?= $entry['id'] ?>" <?= $controller->selected($entry['id'], $instArray) ?> > <?= $entry['name'] ?><br>
-				
-			<? } ?>
-			
+				<? foreach ($institutes as $entry) { ?>
+			 	<input type="checkbox" class="institutes" value="<?= $entry['id'] ?>" <?= $controller->selected($entry['id'], $instArray) ?> > <a title="<?= $entry['id'] ?>" class="institutesOF" tabindex="0" href="javascript:void(0);"><?= $entry['name'] ?></a><br>
+				<? if (count($entry['institutes'])) { ?>
+					<div class="institutesOfFak<?= $entry['id'] ?>" style="margin-left:15px; display:none">
+					
+
+					<? foreach ($entry['institutes'] as $inst) { ?>
+			 			<input type="checkbox" class="institutes" value="<?= $inst['inst_id'] ?>" <?= $controller->selected($inst['inst_id'], $instArray) ?> > <?= $inst['inst_name'] ?><br>
+					<? } ?>
+
+					
+					</div>
+				<? } ?>
+
+			<? } ?>			
 		</div><br><br>
 
 

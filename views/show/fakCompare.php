@@ -5,7 +5,7 @@
 <div id="sidebar">
 
 	<div>
-		<a tabindex="0" href="javascript:void(0);" onclick="compareSemTypes()" class="button">Aktualisieren</a>
+		<a tabindex="0" href="javascript:void(0);" onclick="compareInstitutes()" class="button">Aktualisieren</a>
 		<br><br>
 	</div>
 
@@ -40,7 +40,7 @@
 
 <script>
 
-function compareSemTypes() { 
+function compareInstitutes() { 
 
     		var arr_inst='';
     		$('.institutes:checked').each(function() {
@@ -67,7 +67,7 @@ function compareSemTypes() {
 			arr_sem_classes = "all";	
 		}
 
-		window.location = "<?= $controller->url_for('/show/semClassCompare/')?>" + arr_inst + "/" + arr_perms + "/" + arr_sem_classes;
+		window.location = "<?= $controller->url_for('/show/fakCompare/')?>" + arr_inst + "/" + arr_perms + "/" + arr_sem_classes;
 
     
 	}
@@ -75,6 +75,7 @@ function compareSemTypes() {
 
 
 $(function () {
+
 
 	var instOfFak = document.getElementsByClassName("institutesOF");
     for (var i = 0; i < instOfFak.length; i++) {
@@ -102,7 +103,6 @@ $(function () {
 		}			
 	}
 
-	
 
 	var group = document.getElementById('group_licenses');
     group.onchange = function() {
@@ -131,14 +131,14 @@ $(function () {
         },
 
         title: {
-            text: 'Lizenzen nach Veranstaltungsart'
+            text: 'Lizenzen nach Fakultäten'
         },
 
         xAxis: {
             categories: 
 		<?
 			echo "[";
-			foreach ($compared_semClasses as $ci){
+			foreach ($compared_institutes as $ci){
 				echo "'" . $ci[name] . "',";
 			}
 
@@ -186,9 +186,9 @@ $(function () {
 		for($i=0; $i < count($prot); $i++){
 
 			echo "{ name: '". $plugin->get_license_shortened($prot[$i]) . "', data: [";
-			foreach ($compared_semClasses as $ci){
-				if ($semClass_results[$ci[id]][$prot[$i]]){
-					echo $semClass_results[$ci[id]][$prot[$i]] . ",";
+			foreach ($compared_institutes as $ci){
+				if ($institute_results[$ci[id]][$prot[$i]]){
+					echo $institute_results[$ci[id]][$prot[$i]] . ",";
 				} else echo "0,";
 			}
 			echo "], },";
@@ -205,14 +205,14 @@ $('#container_vergleich_pro').highcharts({
         },
 
         title: {
-            text: 'Vergleich: Lizenzen prozentual nach Veranstaltungsart'
+            text: 'Lizenzen prozentual nach Fakultäten'
         },
 
         xAxis: {
             categories: 
 		<?
 			echo "[";
-			foreach ($compared_semClasses as $ci){
+			foreach ($compared_institutes as $ci){
 				echo "'" . $ci[name] . "',";
 			}
 
@@ -253,9 +253,9 @@ $('#container_vergleich_pro').highcharts({
 		for($i=0; $i < count($prot); $i++){
 
 			echo "{ name: '". $plugin->get_license_shortened($prot[$i]) . "', data: [";
-			foreach ($compared_semClasses as $ci){
-				if ($semClass_results[$ci[id]][$prot[$i]]){
-					echo $semClass_results[$ci[id]][$prot[$i]] . ",";
+			foreach ($compared_institutes as $ci){
+				if ($institute_results[$ci[id]][$prot[$i]]){
+					echo $institute_results[$ci[id]][$prot[$i]] . ",";
 				} else echo "0,";
 			}
 			echo "], },";
@@ -273,14 +273,14 @@ $('#container_vergleich_grouped').highcharts({
         },
 
         title: {
-            text: 'Lizenzen nach Veranstaltungsart und Lizenzgruppen'
+            text: 'Lizenzen nach Fakultäten und Lizenzgruppen'
         },
 
         xAxis: {
             categories: 
 		<?
 			echo "[";
-			foreach ($compared_semClasses as $ci){
+			foreach ($compared_institutes as $ci){
 				echo "'" . $ci[name] . "',";
 			}
 
@@ -328,9 +328,9 @@ $('#container_vergleich_grouped').highcharts({
 		for($i=0; $i < count($prot); $i++){
 
 			echo "{ name: '". $plugin->get_license_group($prot[$i], 1) . "', data: [";
-			foreach ($compared_semClasses as $cp){
-				if ($semClass_results_grouped[$cp['id']][$prot[$i]]){
-					echo $semClass_results_grouped[$cp['id']][$prot[$i]] . ",";
+			foreach ($compared_institutes as $cp){
+				if ($institute_results_grouped[$cp['id']][$prot[$i]]){
+					echo $institute_results_grouped[$cp['id']][$prot[$i]] . ",";
 				} else echo "0,";
 			}
 			echo "], },";
@@ -347,14 +347,14 @@ $('#container_vergleich_grouped').highcharts({
         },
 
         title: {
-            text: 'Lizenzen prozentual nach Veranstaltungsart und Lizenzgruppen'
+            text: 'Lizenzen prozentual nach Fakultät und Lizenzgruppen'
         },
 
         xAxis: {
             categories: 
 		<?
 			echo "[";
-			foreach ($compared_semClasses as $ci){
+			foreach ($compared_institutes as $ci){
 				echo "'" . $ci[name] . "',";
 			}
 
@@ -395,9 +395,9 @@ $('#container_vergleich_grouped').highcharts({
 		for($i=0; $i < count($prot); $i++){
 
 			echo "{ name: '". $plugin->get_license_group($prot[$i], 1) . "', data: [";
-			foreach ($compared_semClasses as $cp){
-				if ($semClass_results_grouped[$cp['id']][$prot[$i]]){
-					echo $semClass_results_grouped[$cp['id']][$prot[$i]] . ",";
+			foreach ($compared_institutes as $cp){
+				if ($institute_results_grouped[$cp['id']][$prot[$i]]){
+					echo $institute_results_grouped[$cp['id']][$prot[$i]] . ",";
 				} else echo "0,";
 			}
 			echo "], },";

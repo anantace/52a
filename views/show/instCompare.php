@@ -77,6 +77,33 @@ function compareInstitutes() {
 $(function () {
 
 
+	var instOfFak = document.getElementsByClassName("institutesOF");
+    for (var i = 0; i < instOfFak.length; i++) {
+   	 	instOfFak[i].onclick = function() {
+			var institutes = document.getElementsByClassName("institutesOfFak" + this.title);
+ 			for (var j = 0; j < institutes.length; j++) {
+				if(institutes[j].style.display == 'none'){
+					institutes[j].style.display = 'block';
+				} else institutes[j].style.display = 'none';
+			}
+		}
+	}
+
+
+    var fakultaeten = document.getElementsByClassName("institutes");
+    for (var i = 0; i < fakultaeten.length; i++) {
+   	 	fakultaeten[i].onchange = function() {
+			var institutes = document.getElementsByClassName("institutesOfFak" + this.value)[0].childNodes;
+				for (var j = 0; j < institutes.length; j++) {
+					
+					if(this.checked){
+						institutes[j].checked = true;
+					} else institutes[j].checked = false;		
+				}
+		}			
+	}
+
+
 	var group = document.getElementById('group_licenses');
     group.onchange = function() {
 	if(this.checked){
@@ -104,7 +131,7 @@ $(function () {
         },
 
         title: {
-            text: 'Vergleich: Lizenzen nach Einrichtungen'
+            text: 'Lizenzen nach Einrichtungen'
         },
 
         xAxis: {
@@ -178,7 +205,7 @@ $('#container_vergleich_pro').highcharts({
         },
 
         title: {
-            text: 'Vergleich: Lizenzen prozentual nach Rechtestufe'
+            text: 'Lizenzen prozentual nach Einrichtungen'
         },
 
         xAxis: {
@@ -246,7 +273,7 @@ $('#container_vergleich_grouped').highcharts({
         },
 
         title: {
-            text: 'Lizenzen nach Rechtestufe und Lizenzgruppen'
+            text: 'Lizenzen nach Einrichtungen und Lizenzgruppen'
         },
 
         xAxis: {
@@ -320,7 +347,7 @@ $('#container_vergleich_grouped').highcharts({
         },
 
         title: {
-            text: 'Lizenzen prozentual nach Rechtestufe und Lizenzgruppen'
+            text: 'Lizenzen prozentual nach Einrichtungen und Lizenzgruppen'
         },
 
         xAxis: {
