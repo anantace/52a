@@ -550,7 +550,7 @@ class DBQueries {
 			$sql_inst
 			$sql_sem_classes		
 			GROUP BY sem_id, su.status
-			ORDER BY sd.beginn DESC LIMIT 0, 20";		
+			ORDER BY sd.beginn DESC LIMIT 0, 100";		
 
 
 		$statement = DBManager::get()->prepare($query);
