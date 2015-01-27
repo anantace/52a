@@ -26,6 +26,29 @@
 	
     <div id="charts">
 	<div id="container" style="min-width: 1100px; height: 400px; max-width: 2200px; margin: 0 auto"></div>
+	<div id="container_vergleich_table" style="min-width: 310px; max-width: 400px; margin: 0 auto">
+		<? if (count($queryResult)) { ?>
+   	<table class="default collapsable">
+		<tr>
+			<th>Anzahl der Uploads</th>
+    			<th>Semester</th>    
+
+		</tr>   
+     
+	<? foreach ($queryResult as $entry) { ?>
+		<tr>
+			<td> <?= $entry['count'] ?> </td>
+			<td> <?= $entry['sem'] ?> </td>
+			
+		</tr>	
+
+	<? } ?>
+
+
+    	</table>
+	<? } ?>
+
+	</div>
 
     </div>
 </div>

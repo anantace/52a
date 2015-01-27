@@ -122,6 +122,8 @@ class ShowController extends StudipController {
 		$inst_results_grouped[$li[inst_id]][$this->get_license_group($li[prot], 0)] += $li[count];	
 	}
 
+	$this->queryResult = $licenses;
+
 	$this->instArray = $instArray;
 	$this->permsArray = $permsArray;
 	$this->semClassArray = $semClassArray;
@@ -190,6 +192,8 @@ class ShowController extends StudipController {
 		$inst_results[$li[fak_id]][$li[prot]] = $li[count];
 		$inst_results_grouped[$li[fak_id]][$this->get_license_group($li[prot], 0)] += $li[count];	
 	}
+
+	$this->queryResult = $licenses;
 
 	$this->instArray = $instArray;
 	$this->permsArray = $permsArray;
@@ -261,6 +265,8 @@ class ShowController extends StudipController {
 		$semClass_results[$li[id]][$li[prot]] = $li[count];
 		$semClass_results_grouped[$li[id]][$this->get_license_group($li[prot], 0)] += $li[count];	
 	}
+
+	$this->queryResult = $licenses;
 
 	$this->instArray = $instArray;
 	$this->permsArray = $permsArray;
@@ -344,7 +350,7 @@ class ShowController extends StudipController {
 		}
 	}
 	
-
+	$this->queryResult = $result;
 
 	$this->instArray = $instArray;
 	$this->permsArray = $permsArray;
@@ -438,6 +444,10 @@ class ShowController extends StudipController {
 	}
 
 
+	$this->queryResult = $uploads;
+	$this->queryResultReports = $reports;
+
+
 	$this->instArray = $instArray;
 	$this->permsArray = $permsArray;
 	$this->semClassArray = $semClassArray;
@@ -495,6 +505,7 @@ class ShowController extends StudipController {
 		} else $grouped_institutes[$i[fakultaets_id]]['institutes'][$i[id]] = array('inst_id' =>$i[id], 'inst_name' => $i[name]);
 	}
 
+	$this->queryResult = $uploads;
 
 	$this->instArray = $instArray;
 	$this->permsArray = $permsArray;
@@ -559,6 +570,7 @@ class ShowController extends StudipController {
 		} else $grouped_institutes[$i[fakultaets_id]]['institutes'][$i[id]] = array('inst_id' =>$i[id], 'inst_name' => $i[name]);
 	}
 
+	$this->queryResult = $uploads;
 
 	$this->instArray = $instArray;
 	$this->permsArray = $permsArray;

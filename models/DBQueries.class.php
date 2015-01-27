@@ -305,7 +305,7 @@ class DBQueries {
 		}
 
 
-		$query = "SELECT COUNT(*) as count, document_licenses.name as name, dokumente.protected as prot, sem_classes.id as id
+		$query = "SELECT COUNT(*) as count, document_licenses.name as name, dokumente.protected as prot, sem_classes.id as id, sem_classes.name as classname
 			FROM `dokumente` LEFT JOIN document_licenses ON dokumente.protected = license_id 
 					   LEFT JOIN seminare ON seminare.Seminar_id = dokumente.seminar_id
 					   LEFT JOIN Institute ON seminare.Institut_id = Institute.Institut_id
@@ -550,7 +550,7 @@ class DBQueries {
 			$sql_inst
 			$sql_sem_classes		
 			GROUP BY sem_id, su.status
-			ORDER BY sd.beginn DESC LIMIT 0, 80";		
+			ORDER BY sd.beginn DESC LIMIT 0, 20";		
 
 
 		$statement = DBManager::get()->prepare($query);

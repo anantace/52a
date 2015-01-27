@@ -34,6 +34,58 @@
 	<div id="container-meldungen" style="min-width: 1100px; height: 400px; max-width: 2200px; margin: 0 auto"></div>
 	<div id="container-meldungen-week" style="min-width: 1100px; height: 400px; max-width: 2200px; margin: 0 auto"></div>
 
+	<div id="container_vergleich_table" style="min-width: 310px; max-width: 400px; margin: 0 auto">
+		<? if (count($queryResult)) { ?>
+   	<table class="default collapsable">
+		<tr>
+			<th>Anzahl</th>
+    			<th>Lizenz</th>    
+			<th>ID</th>
+			<th>Monat</th>
+
+		</tr>   
+     
+	<? foreach ($queryResult as $entry) { ?>
+		<tr>
+			<td> <?= $entry['count'] ?> </td>
+			<td> <?= $plugin->get_license_shortened($entry['prot']) ?> </td>
+			<td> <?= $entry['prot'] ?> </td>
+			<td> <?= $entry['month'] ?> </td>
+		</tr>	
+
+	<? } ?>
+
+
+    	</table>
+	<? } ?>
+
+	</div>
+
+	<div id="container_vergleich_meldungen_table" style="min-width: 310px; max-width: 400px; margin: 0 auto">
+		<? if (count($queryResultReports)) { ?>
+   	<table class="default collapsable">
+		<tr>
+			<th>Anzahl</th>
+    			<th>Status der Meldung</th>    
+			<th>Monat</th>
+
+		</tr>   
+     
+	<? foreach ($queryResultReports as $entry) { ?>
+		<tr>
+			<td> <?= $entry['count'] ?> </td>
+			<td> <?= $entry['report_status'] ?> </td>
+			<td> <?= $entry['month'] ?> </td>
+		</tr>	
+
+	<? } ?>
+
+
+    	</table>
+	<? } ?>
+
+	</div>
+
 
 
     </div>

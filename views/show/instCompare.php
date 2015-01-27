@@ -32,6 +32,33 @@
 	<div id="container_vergleich_pro_grouped" style="min-width: 410px; height: 410px; max-width: 1800px; margin: 0 auto"></div>
 	<div id="container_vergleich_grouped" style="min-width: 410px; height: 410px; max-width: 1800px; margin: 0 auto"></div>
 
+	<div id="container_vergleich_table" style="min-width: 410px; max-width: 1800px; margin: 0 auto">
+		<? if (count($queryResult)) { ?>
+   	<table class="default collapsable">
+		<tr>
+			<th>Anzahl</th>
+    			<th>Lizenz</th>    
+			<th>ID</th>
+			<th>Einrichtung</th>
+		</tr>   
+     
+	<? foreach ($queryResult as $entry) { ?>
+		<tr>
+			<td> <?= $entry['count'] ?> </td>
+			<td> <?= $plugin->get_license_shortened($entry['prot']) ?> </td>
+			<td> <?= $entry['prot'] ?> </td>
+			<td> <?= $entry['inst'] ?> </td>
+		</tr>	
+
+	<? } ?>
+
+
+    	</table>
+	<? } ?>
+
+	</div>
+
+
     </div>
 
     
