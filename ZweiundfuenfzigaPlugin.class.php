@@ -23,15 +23,13 @@ class ZweiundfuenfzigaPlugin extends AbstractStudIPAdministrationPlugin {
       
 	$this->setupNavigation();
 
-	PageLayout::addStylesheet($this->getPluginUrl() . '/css/style.css');
-	PageLayout::addScript($this->getPluginUrl() . '/highcharts/js/highcharts.js');
-	PageLayout::addScript($this->getPluginUrl() . '/highcharts/js/modules/exporting.js');
-
     }
 
     public function initialize () {
 
-    
+		PageLayout::addStylesheet($this->getPluginUrl() . '/css/style.css');
+		PageLayout::addScript($this->getPluginUrl() . '/highcharts/js/highcharts.js');
+		PageLayout::addScript($this->getPluginUrl() . '/highcharts/js/modules/exporting.js');
         PageLayout::addStylesheet($this->getPluginURL().'/assets/style.css');
         PageLayout::addScript($this->getPluginURL().'/assets/application.js');
     }
